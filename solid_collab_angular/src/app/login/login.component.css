@@ -1,0 +1,8 @@
+.mat-blue {
+background-color: #0e71ad;
+}
+
+.mat-grid-tile-content
+{
+    flex-direction: column;
+}  
