@@ -6,3 +6,12 @@ background-color: #0e71ad;
 {
     flex-direction: column;
 }  
+
+#sect1 {  
+      
+    background-image: url("../../assets/solid.svg");  
+    background-size: 17% ;  
+    background-repeat: no-repeat;
+    background-position: center;
+     
+}  

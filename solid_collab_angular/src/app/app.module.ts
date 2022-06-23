@@ -11,12 +11,20 @@ import {MatGridListModule} from '@angular/material/grid-list';
 import {MatIcon, MatIconModule} from '@angular/material/icon';
 import { HomePageComponent } from './home-page/home-page.component';
 import { AuthserviceService } from './authservice.service';
+import { HttpClientModule } from '@angular/common/http';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { FormsModule } from '@angular/forms';
+import { SignupComponent } from './signup/signup.component';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import {MatSelectModule} from '@angular/material/select';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    HomePageComponent
+    HomePageComponent,
+    SignupComponent
   ],
   imports: [
     BrowserModule,
@@ -25,7 +33,13 @@ import { AuthserviceService } from './authservice.service';
     MatButtonModule,
     MatGridListModule,
     MatMenuModule,
-    MatIconModule
+    MatIconModule,
+    HttpClientModule,
+    MatButtonToggleModule,
+    FormsModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule
     
   ],
   providers: [AuthserviceService],

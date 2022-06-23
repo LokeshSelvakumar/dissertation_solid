@@ -1,4 +1,6 @@
-export class user{
+import { Optional } from '@angular/core';  
+export class User{
+    private webId:String;
     private fullName:String;
     private DOB:String;
     private nickName:String;
@@ -6,7 +8,10 @@ export class user{
     private organizationName:String;
     private role:String;
 
-    constructor(fullName:String, DOB:String,nickName:String, type:String,organizationName:String,role:String){
+    constructor( webId:String, type:String, @Optional() fullName:String = "",
+     @Optional() DOB:String = "", @Optional() nickName:String = "", @Optional()
+      organizationName:String = "",@Optional() role:String =""){
+        this.webId = webId;
         this.fullName = fullName;
         this.DOB = DOB;
         this.nickName = nickName;

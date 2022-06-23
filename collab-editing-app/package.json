@@ -13,14 +13,16 @@
     "@inrupt/solid-client": "^1.23.1",
     "@inrupt/solid-client-authn-browser": "^1.11.9",
     "@inrupt/vocab-common-rdf": "^1.0.5",
+    "bootstrap": "^5.2.0-beta1",
+    "parcel": "^2.6.0",
     "parcel-bundler": "^1.12.5"
   },
   "browserslist": [
-   "last 3 and_chr versions",
-   "last 3 chrome versions",
-   "last 3 opera versions",
-   "last 3 ios_saf versions",
-   "last 3 safari versions",
-   "last 3 edge versions"
- ]
+    "last 3 and_chr versions",
+    "last 3 chrome versions",
+    "last 3 opera versions",
+    "last 3 ios_saf versions",
+    "last 3 safari versions",
+    "last 3 edge versions"
+  ]
 }

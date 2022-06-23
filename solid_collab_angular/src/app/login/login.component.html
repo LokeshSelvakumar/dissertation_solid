@@ -1,11 +1,26 @@
-<mat-grid-list cols="1"  rowHeight = "5em">
+<mat-grid-list cols="1" rowHeight="5em" id=sect1>
     <mat-grid-tile>
-            <h2>SOLID-PCRV (Patient Collab Rule Voting)</h2>
-            <p>{{text_login}}</p>
+        <h1>SOLID-PCRV</h1><br>
+        <h2>(Patient Collab Rule Voting)</h2>
+    </mat-grid-tile>
+    <mat-grid-tile rowspan="6">
+        <p></p>
+    </mat-grid-tile>
+    <mat-grid-tile rowspan="1">
+        <div>
+            <button mat-raised-button color="blue" (click)="login()">Login</button>
+        </div>
+    </mat-grid-tile>
+    <mat-grid-tile rowspan="1">
+            <button mat-raised-button color="blue" (click)="signUP()"> SIGNUP </button> 
         </mat-grid-tile>
-        <mat-grid-tile rowspan = "10">
-            <button  mat-raised-button color = "blue" (click)="login()">Login</button>
-        </mat-grid-tile>
-  </mat-grid-list>
-
-
+            <mat-grid-tile rowspan="1">
+                <mat-button-toggle-group [(ngModel)] ="SOLID_IDENTITY_PROVIDER" aria-label="Font Style">
+                  <mat-button-toggle value="https://inrupt.net">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INRUPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</mat-button-toggle>
+                  <mat-button-toggle value="https://solidcommunity.net/">solid community</mat-button-toggle>
+                </mat-button-toggle-group>
+            </mat-grid-tile>
+                <mat-grid-tile rowspan="1"> 
+            <p>Chosen identity provider is {{SOLID_IDENTITY_PROVIDER}}</p>
+    </mat-grid-tile>
+</mat-grid-list>

@@ -19,16 +19,18 @@ import {
 })
 export class HomePageComponent implements OnInit {
 
-  constructor(private router:Router,private service:AuthserviceService) { }
+  constructor(private router: Router, private service: AuthserviceService) { }
   copysession = this.service.session;
-  profName:string = "";
+  profName: string = "";
 
-  logout(){
+  logout() {
     this.service.session = new Session();
+    this.service.session.logout();
     this.router.navigate(['/']);
   }
 
   async ngOnInit(): Promise<void> {
+    await this.copysession.handleIncomingRedirect({ url: window.location.href, restorePreviousSession: true });
     let webId = this.copysession.info.webId || "";
     let profileDocumentUrl = new URL(webId);
     let myDataset;
@@ -39,8 +41,6 @@ export class HomePageComponent implements OnInit {
     }
     let profile = getThing(myDataset, webId);
     this.profName = profileDocumentUrl.toString();
-    console.log(profileDocumentUrl);
-    console.log(myDataset);
   }
 
 }
