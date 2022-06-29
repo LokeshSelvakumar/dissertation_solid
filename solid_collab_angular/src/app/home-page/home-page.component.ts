@@ -12,6 +12,8 @@ import {
   saveSolidDatasetAt
 } from "@inrupt/solid-client";
 
+import {FormBuilder} from '@angular/forms';
+
 @Component({
   selector: 'app-home-page',
   templateUrl: './home-page.component.html',
@@ -19,14 +21,24 @@ import {
 })
 export class HomePageComponent implements OnInit {
 
-  constructor(private router: Router, private service: AuthserviceService) { }
+  constructor(private router: Router, private service: AuthserviceService,private _formBuilder: FormBuilder) { }
   copysession = this.service.session;
   profName: string = "";
+
+  toppings = this._formBuilder.group({
+    pepperoni: false,
+    extracheese: false,
+    mushroom: false,
+  });
 
   logout() {
     this.service.session = new Session();
     this.service.session.logout();
     this.router.navigate(['/']);
+  }
+  
+  submit(){
+    
   }
 
   async ngOnInit(): Promise<void> {

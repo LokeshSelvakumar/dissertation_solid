@@ -27,6 +27,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
   fontStyleControl = new FormControl('');
   SOLID_IDENTITY_PROVIDER?: string = "https://inrupt.net";
+  USER_SELECTION:string = "USER";
   session = new Session();
   text_login: String = "";
   userFound = false;
@@ -49,6 +50,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   async signUP():Promise<void>{
     localStorage.setItem("signup","true");
+    localStorage.setItem("signupUser",this.USER_SELECTION);
     await this.session.login({
       oidcIssuer: this.SOLID_IDENTITY_PROVIDER,
       clientName: "SOLID PCRV",
@@ -58,9 +60,9 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     await this.session.handleIncomingRedirect({url:window.location.href});
-    // let myAppProfile = await getSolidDataset(this.session.info.webId + "/user");
     let webId = this.session.info.webId? this.session.info.webId:"";
-     let userLogged:User = new User(webId,"USER");
+    let userSelection = localStorage.getItem("signupUser");
+     let userLogged:User = new User(webId,userSelection?userSelection:"USER");
     //signup logic
     if(localStorage.getItem("signup") =="true"){
       // resetting back local storage

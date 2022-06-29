@@ -10,8 +10,8 @@ background-color: #0e71ad;
 #sect1 {  
       
     background-image: url("../../assets/solid.svg");  
-    background-size: 17% ;  
+    background-size: 10% ;  
     background-repeat: no-repeat;
-    background-position: center;
+    background-position: top-left;
      
 }  

@@ -1,7 +1,7 @@
-<mat-grid-list cols="3" rowHeight="5em">
+<mat-grid-list cols="3" rowHeight="10em">
   <mat-grid-tile></mat-grid-tile>
   <mat-grid-tile>
-    <h2>HOME</h2>
+    <h2>Request edit page</h2>
   </mat-grid-tile>
   <mat-grid-tile>
     <p>{{profName}}</p>
@@ -15,4 +15,41 @@
       </button>
     </mat-menu>
   </mat-grid-tile>
+  <mat-grid-tile>
+    
+    <h4>User Data will be used for (months) </h4>
+<mat-form-field appearance="fill">
+  <mat-label>Months</mat-label>
+  <select matNativeControl required>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+  </select>
+</mat-form-field>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <h4>User Data will be copied </h4>
+    <mat-form-field appearance="fill">
+      <mat-label>yes/no</mat-label>
+      <select matNativeControl required>
+        <option value="yes">yes</option>
+        <option value="no">no</option>
+      </select>
+    </mat-form-field>
+      </mat-grid-tile>
+    <mat-grid-tile>
+      <section class="example-section" [formGroup]="toppings">
+        <h4>The data will be used for following purposes:</h4>
+        <p><mat-checkbox formControlName="pepperoni">Research</mat-checkbox></p>
+        <p><mat-checkbox formControlName="extracheese">Analysis</mat-checkbox></p>
+      </section>
+    </mat-grid-tile>
+
+    <mat-grid-tile rowspan="1">
+      <div>
+          <button mat-raised-button color="blue" (click)="submit()">submit request</button>
+      </div>
+  </mat-grid-tile>
+    
 </mat-grid-list>

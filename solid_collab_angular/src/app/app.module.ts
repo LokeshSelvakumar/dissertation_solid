@@ -13,11 +13,12 @@ import { HomePageComponent } from './home-page/home-page.component';
 import { AuthserviceService } from './authservice.service';
 import { HttpClientModule } from '@angular/common/http';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
-import { FormsModule } from '@angular/forms';
+import { FormsModule ,ReactiveFormsModule} from '@angular/forms';
 import { SignupComponent } from './signup/signup.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {MatSelectModule} from '@angular/material/select';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,9 @@ import {MatSelectModule} from '@angular/material/select';
     FormsModule,
     MatInputModule,
     MatFormFieldModule,
-    MatSelectModule
+    MatSelectModule,
+    MatCheckboxModule,
+    ReactiveFormsModule
     
   ],
   providers: [AuthserviceService],
