@@ -3,6 +3,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { Router } from '@angular/router';
 import { Session } from "@inrupt/solid-client-authn-browser";
 import { AuthserviceService } from '../authservice.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   getSolidDataset,
   getThing,
@@ -12,9 +13,9 @@ import {
   saveSolidDatasetAt
 } from "@inrupt/solid-client";
 import { Observable, windowWhen } from 'rxjs';
-import {FormControl} from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { User } from '../model/user-info';
-
+import {AjaxResult} from '../model/constants';
 
 @Component({
   selector: 'app-login',
@@ -23,34 +24,26 @@ import { User } from '../model/user-info';
 })
 
 export class LoginComponent implements OnInit, OnDestroy {
-  constructor(private route: Router,private service:AuthserviceService) {
+  constructor(private route: Router, private service: AuthserviceService, private _snackBar: MatSnackBar) {
   }
-  fontStyleControl = new FormControl('');
   SOLID_IDENTITY_PROVIDER?: string = "https://inrupt.net";
-  USER_SELECTION:string = "USER";
+  USER_SELECTION: string = "USER";
   session = new Session();
-  text_login: String = "";
-  userFound = false;
 
   async login(): Promise<void> {
     console.log("inside login")
     console.log(this.session.info.sessionId);
-    localStorage.setItem("signup","false");
-      await this.session.login({
-        oidcIssuer: this.SOLID_IDENTITY_PROVIDER,
-        clientName: "SOLID PCRV",
-        redirectUrl: window.location.href
-      });
-    //   await (await this.service.sendLoginRequest()).subscribe(result=>{
-    //     console.log("returned response");
-    //     console.log(result);
-    //     window.location.href = result;
-    //  });
+    localStorage.setItem("signup", "false");
+    await this.session.login({
+      oidcIssuer: this.SOLID_IDENTITY_PROVIDER,
+      clientName: "SOLID PCRV",
+      redirectUrl: window.location.href
+    });
   }
 
-  async signUP():Promise<void>{
-    localStorage.setItem("signup","true");
-    localStorage.setItem("signupUser",this.USER_SELECTION);
+  async signUP(): Promise<void> {
+    localStorage.setItem("signup", "true");
+    localStorage.setItem("signupUser", this.USER_SELECTION);
     await this.session.login({
       oidcIssuer: this.SOLID_IDENTITY_PROVIDER,
       clientName: "SOLID PCRV",
@@ -59,37 +52,52 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    await this.session.handleIncomingRedirect({url:window.location.href});
-    let webId = this.session.info.webId? this.session.info.webId:"";
+    //handle incoming redirect from solid identity provider after login
+    await this.session.handleIncomingRedirect({ url: window.location.href });
+
+    let webId = this.session.info.webId ? this.session.info.webId : "";
     let userSelection = localStorage.getItem("signupUser");
-     let userLogged:User = new User(webId,userSelection?userSelection:"USER");
-    //signup logic
-    if(localStorage.getItem("signup") =="true"){
-      // resetting back local storage
-      localStorage.setItem("signup","false");
-       (await this.service.registerUser(userLogged)).subscribe((result)=>{
-        console.log("after registration");
-        console.log(JSON.stringify(result));
-        if(result == "usernotfound"){
-         this.route.navigate(['/homepage']);
-        }
-        else{
-          console.log("user found already");
-        }
-      });
-    }
 
-    // login logic
-    else {
-      (await this.service.checkUser(webId)).subscribe((result)=>{
+    if (this.session.info.isLoggedIn) {
+      let myAppProfile = await getSolidDataset(this.session.info.webId + "/user");
+      let userCard = getThing(
+        myAppProfile,
+        this.session.info.webId ? this.session.info.webId : "" //will always have some value
+      );
+      let name = getThing(
+        myAppProfile,
+        this.session.info.webId ? this.session.info.webId : "" //will always have some value
+      );
+      let userLogged: User = new User(webId, userSelection ? userSelection : "USER");
+      //signup logic
+      if (localStorage.getItem("signup") == "true") {
+        // resetting back local storage
+        localStorage.setItem("signup", "false");
+        (await this.service.registerUser(userLogged)).subscribe((result: AjaxResult) => {
+          console.log("after registration");
 
-      });
-      if (this.session.info.isLoggedIn) {
-      // resetting back local storage
-      localStorage.setItem("signup","false");
-      this.route.navigate(['/homepage']);
+          if (result['message'] == "user Registered") {
+            this.route.navigate(['/homepage']);
+          }
+          else {
+            this._snackBar.open("user exists already Try logging in", "ok");
+            console.log("user exists already cannot register");
+          }
+        });
+      }
+      else {// login logic
+        (await this.service.checkUser(userLogged)).subscribe((result: AjaxResult) => {
+          if (result['message'] == "login success") {
+            this.route.navigate(['/homepage']);
+          }
+          else {
+            this._snackBar.open("user not found, Try signing in", "ok");
+          }
+        });
+          // resetting back local storage
+          localStorage.setItem("signup", "false");
+      }
     }
-  }
   }
 
   ngOnDestroy(): void {

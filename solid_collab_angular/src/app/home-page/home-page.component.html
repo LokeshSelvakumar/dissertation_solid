@@ -1,7 +1,7 @@
 <mat-grid-list cols="3" rowHeight="10em">
   <mat-grid-tile></mat-grid-tile>
   <mat-grid-tile>
-    <h2>Request edit page</h2>
+    <h2>Data Access Request</h2>
   </mat-grid-tile>
   <mat-grid-tile>
     <p>{{profName}}</p>
@@ -15,41 +15,81 @@
       </button>
     </mat-menu>
   </mat-grid-tile>
+  <mat-grid-tile></mat-grid-tile>
   <mat-grid-tile>
-    
-    <h4>User Data will be used for (months) </h4>
-<mat-form-field appearance="fill">
-  <mat-label>Months</mat-label>
-  <select matNativeControl required>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-  </select>
-</mat-form-field>
+    <p>Select the appropriate option available to form your custom rules in accessing patient data</p>
+  </mat-grid-tile>
+  <mat-grid-tile></mat-grid-tile>
+  <mat-grid-tile>
+    <h4>patient Data access till &nbsp;&nbsp;&nbsp;</h4>
+    <mat-form-field appearance="fill">
+      <mat-label>Choose a date</mat-label>
+      <input matInput [matDatepicker]="picker" [(ngModel)] = "dateSelected">
+      <mat-hint>MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
   </mat-grid-tile>
   <mat-grid-tile>
-    <h4>User Data will be copied </h4>
+    <h4>patient Data will be copied &nbsp;&nbsp;&nbsp;</h4>
     <mat-form-field appearance="fill">
       <mat-label>yes/no</mat-label>
-      <select matNativeControl required>
-        <option value="yes">yes</option>
-        <option value="no">no</option>
-      </select>
+      <mat-select [(ngModel)]="yesOrNo" name="shortAnswer">
+        <mat-option *ngFor="let shortAnswer of shortAnswers" [value]="shortAnswer.value">
+          {{shortAnswer.viewValue}}
+        </mat-option>
+      </mat-select>
     </mat-form-field>
-      </mat-grid-tile>
-    <mat-grid-tile>
-      <section class="example-section" [formGroup]="toppings">
-        <h4>The data will be used for following purposes:</h4>
-        <p><mat-checkbox formControlName="pepperoni">Research</mat-checkbox></p>
-        <p><mat-checkbox formControlName="extracheese">Analysis</mat-checkbox></p>
-      </section>
-    </mat-grid-tile>
-
-    <mat-grid-tile rowspan="1">
-      <div>
-          <button mat-raised-button color="blue" (click)="submit()">submit request</button>
-      </div>
   </mat-grid-tile>
-    
+  <mat-grid-tile>
+    <h4>history of data collected will be maintained&nbsp;&nbsp;&nbsp;</h4>
+    <mat-form-field appearance="fill">
+      <mat-label>yes/no</mat-label>
+      <mat-select [(ngModel)]="historyOfData" name="shortAnswer">
+        <mat-option *ngFor="let shortAnswer of shortAnswers" [value]="shortAnswer.value">
+          {{shortAnswer.viewValue}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <h4>Patient data will be sold to third parties&nbsp;&nbsp;&nbsp;</h4>
+    <mat-form-field appearance="fill">
+      <mat-label>yes/no</mat-label>
+      <mat-select [(ngModel)]="dataSelling" name="shortAnswer">
+        <mat-option *ngFor="let shortAnswer of shortAnswers" [value]="shortAnswer.value">
+          {{shortAnswer.viewValue}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <section class="purpose-section">
+      <h4>Patient data will be used for following purposes:</h4>
+      <span class="purpose-list-section">
+        <mat-checkbox class="purpose-margin" [checked]="allComplete" [indeterminate]="someComplete()"
+          (change)="setAll($event.checked)">
+          {{task.name}}
+        </mat-checkbox>
+      </span>
+      <span class="purpose-list-section">
+        <ul>
+          <li *ngFor="let subtask of task.subtasks">
+            <mat-checkbox [(ngModel)]="subtask.completed" (ngModelChange)="updateAllComplete()">
+              {{subtask.name}}
+            </mat-checkbox>
+          </li>
+        </ul>
+      </span>
+    </section>
+  </mat-grid-tile>
+  <mat-grid-tile></mat-grid-tile>
+  <mat-grid-tile rowspan="1">
+    <div>
+      <button mat-raised-button color="blue" (click)="submit()">submit request</button>
+    </div>
+  </mat-grid-tile>
+  <mat-grid-tile></mat-grid-tile>
+
 </mat-grid-list>
