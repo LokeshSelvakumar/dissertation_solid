@@ -1,0 +1,67 @@
+<mat-grid-list cols="3" rowHeight="10em">
+    <!-- 1st tile -->
+    <mat-grid-tile></mat-grid-tile>
+    <!-- 2nd tile -->
+    <mat-grid-tile rowspan="1">
+        <h2>User Dashboard</h2>
+    </mat-grid-tile>
+    <!-- 3rd tile -->
+    <mat-grid-tile>
+        <app-profile-component [profName] = "profName"></app-profile-component>
+    </mat-grid-tile>
+    <!-- 2nd row 1st tile -->
+    <mat-grid-tile colspan="2" rowspan="4" class="video-title">
+        <div style="width: 100%; display: flex; align-items: flex-start">
+            <ul id="upvotebuttonList" disabled>
+                <li>
+                    <button mat-icon-button (click)="increment()" color="green">
+                        <mat-icon id="upVoteButton">arrow_drop_up</mat-icon>
+                    </button>
+                </li>
+                <li matTooltip="upvote" style="padding-left:16px; padding-bottom :20px">
+                    {{voteValue}}
+                </li>
+                <li matTooltip="downvote" style=" padding-left:16px">
+                    {{voteValue}}
+                </li>
+                <li>
+                    <button mat-icon-button (click)="decrement()" color="red">
+                        <mat-icon id="downVoteButton">arrow_drop_down</mat-icon>
+                    </button>
+                </li>
+            </ul>
+            <p>
+                <mat-form-field style="width: 70em;" appearance="fill">
+                    <mat-label>Company Request</mat-label>
+                    <textarea matInput placeholder="Ex. It makes me feel..." rows="20"
+                        cols="40">{{companyRequestText}}</textarea>
+                </mat-form-field>
+            </p>
+        </div>
+    </mat-grid-tile>
+    <!-- 2nd row 2nd tile -->
+    <mat-grid-tile rowspan="4">
+        <div class="request-tile">
+            <h3>Company Requests</h3>
+            <mat-selection-list #shoes [multiple]="false">
+                <mat-list-option *ngFor="let shoe of typesOfShoes" [value]="shoe">
+                    {{shoe}}
+                </mat-list-option>
+            </mat-selection-list>
+            <p>
+                Option selected: {{shoes.selectedOptions.selected[0]?.value}}
+            </p>
+        </div>
+    </mat-grid-tile>
+    <!-- 2nd row 3rd tile -->
+    <mat-grid-tile rowspan="1" colspan="3" style="text-align: left;" class="video-title">
+        <div style="width: 100%; display: flex; align-items: flex-start; padding-left:90px">
+            <mat-form-field style="width: 50em;" appearance="fill">
+                <mat-label>Leave a comment</mat-label>
+                <textarea matInput placeholder="Ex. It makes me feel..." rows="5" cols="5"></textarea>
+            </mat-form-field>
+        </div>
+    </mat-grid-tile>
+    <!-- 3rd row 1st tile -->
+    <mat-grid-tile></mat-grid-tile>
+</mat-grid-list>

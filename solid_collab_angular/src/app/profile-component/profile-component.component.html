@@ -1,0 +1,10 @@
+<p>{{profName}}</p>
+<button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+    <mat-icon>more_vert</mat-icon>
+</button>
+<mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="logout()">
+        <mat-icon>exit_to_app</mat-icon>
+        <span>Log out</span>
+    </button>
+</mat-menu>

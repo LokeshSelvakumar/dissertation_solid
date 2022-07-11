@@ -26,7 +26,7 @@ interface ShortAnswers{
   viewValue:string;
 }
 
-export interface checkBoxTask {
+export interface  checkBoxTask {
   name: string;
   completed: boolean;
   subtasks?: checkBoxTask[];
@@ -41,7 +41,7 @@ export class HomePageComponent implements OnInit {
 
   constructor(private router: Router, private service: AuthserviceService,private _formBuilder: FormBuilder) { }
   copysession = this.service.session;
-  profName: string = "";
+  profName: string = "from home page";
   dateSelected :number =  Date.now();
 
   months: Months[] = [

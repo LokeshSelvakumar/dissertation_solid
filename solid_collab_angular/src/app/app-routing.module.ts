@@ -1,14 +1,18 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { CompanyDashboardComponent } from './company-dashboard/company-dashboard.component';
 import { HomePageComponent } from './home-page/home-page.component';
 import { LoginComponent } from './login/login.component';
-import { SignupComponent } from './signup/signup.component';
+import { UserDashboardComponent } from './user-dashboard/user-dashboard.component';
 
 const routes: Routes = [
   // { path: '', component: LoginComponent },
   // { path: 'homepage', component: HomePageComponent },
-  { path: '', component: HomePageComponent },
-  { path: 'signUpPage', component: SignupComponent },
+  // { path: 'userDashboard', component: UserDashboardComponent },
+  // {path: 'companyDashboard', component: CompanyDashboardComponent },
+// for dev purposes
+  { path: '', component: CompanyDashboardComponent }, 
+
 
 ];
 
