@@ -172,13 +172,14 @@ app.post("/submitCompanyRequest", async function (req, res) {
   console.log(Date.now());
   console.log("inside submit company request");
   console.log(req.body);
-  res.send({ message: 'submission done' });
+  let message_to_be_sent = "";
   try {
-    service.submitCompanyRequest(req.body, applicationSession.sessionId);
+    await (service.submitCompanyRequest(req.body, applicationSession.sessionId));
   }
   catch (Exception) {
-    res.send({ message: "error in submitcompany request method" });
+    message_to_be_sent = "error in submitcompany request method";
   }
+  res.send({ message: message_to_be_sent });
 });
 
 app.listen(port, () => {

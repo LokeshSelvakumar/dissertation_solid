@@ -13,6 +13,7 @@ const { getSessionFromStorage } = require("@inrupt/solid-client-authn-node");
 const { SCHEMA_INRUPT, RDF } = require("@inrupt/vocab-common-rdf");
 const { POD_USER_IRI_REGISTRATION } = require("./constants.js");
 const CONSTANTS = require("./constants.js");
+// const crypto = require('crypto');
 
 module.exports = {
     checkUserExist: async function (req, sessionID) {
@@ -22,7 +23,7 @@ module.exports = {
             dataseturl = CONSTANTS.POD_COMPANY_IRI_REGISTRATION;
         }
 
-        const myDataset = getGivenSolidDataset(dataseturl, session);// fetch from authenticated session
+        const myDataset = this.getGivenSolidDataset(dataseturl, session);// fetch from authenticated session
         const user = getThing(myDataset, dataseturl + "#" + req.webId);
 
         if (user) {
@@ -43,7 +44,7 @@ module.exports = {
             rdftype = CONSTANTS.RDF_COMPANY_TYPE;
             dataseturl = CONSTANTS.POD_COMPANY_IRI_REGISTRATION;
         }
-        let courseSolidDataset = getGivenSolidDataset(dataseturl, session);
+        let courseSolidDataset = this.getGivenSolidDataset(dataseturl, session);
 
         //building user details as thing
         const newThing = buildThing(createThing({ name: req.webId }))
@@ -53,15 +54,14 @@ module.exports = {
         courseSolidDataset = setThing(courseSolidDataset, newThing);
 
         //saving user details
-        saveGivenSolidDataset(dataseturl, courseSolidDataset, session);
+        this.saveGivenSolidDataset(dataseturl, courseSolidDataset, session);
     },
     submitCompanyRequest: async function (req, sessionID) {
-        // https://solid-pcrv.inrupt.net/private/Requests/companyRequests.ttl
+
         let usertype = CONSTANTS.COMPANY_USER;
         let rdftype = CONSTANTS.RDF_COMPANY_TYPE;
         session = await getSessionFromStorage(sessionID);
         let dataseturl = CONSTANTS.COMPANY_REQUESTS;
-        const myDataset = getGivenSolidDataset(dataseturl, session);
         let date_ob = new Date();
         let date = ("0" + date_ob.getDate()).slice(-2);
         // current month
@@ -71,32 +71,71 @@ module.exports = {
         let currentDate = year + "-" + month + "-" + date;
         let purposeFullData = req.purpose.subtasks;
         let purposes = [];
-        purposeOfData.forEach(function (value){
-            if(value.completed){
-                purposes.add(value.name);
+        purposeFullData.forEach(function (value) {
+            if (value.completed) {
+                purposes.push(value.name);
             }
         });
-        const Request = buildThing({ name: "DataRequestProperties" })
+
+
+        let courseSolidDataset = await (this.getGivenSolidDataset(dataseturl, session));
+        let count = getThing(courseSolidDataset, dataseturl + "#requestCount");
+
+        //string literal is given as output
+
+        let requestCount;
+        if (count) {
+            count = count.predicates["http://purl.org/ontology/mo/record_count"]
+                .literals["http://www.w3.org/2001/XMLSchema#integer"][0];
+            count = parseInt(count);
+            count = count + 1;
+            requestCount = buildThing(createThing({ name: "requestCount" }))
+                .addUrl(RDF.type, "http://www.w3.org/2003/11/swrl#Variable")
+                .addInteger("http://purl.org/ontology/mo/record_count", count).build();
+        }
+        else {
+            count = 1;
+            requestCount = buildThing(createThing({ name: "requestCount" }))
+                .addUrl(RDF.type, "http://www.w3.org/2003/11/swrl#Variable")
+                .addInteger("http://purl.org/ontology/mo/record_count", 1).build();
+
+        }
+
+        const Request = buildThing({ name: "DataRequestProperties_" + count })
             .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "https://w3id.org/GDPRtEXT#HealthData")
-            .addUrl("http://purl.org/dc/terms/valid",req.selectedDate)
-            .addUrl("http://vocab.deri.ie/cogs#Copy",req.isCopied)
-            .addUrl("http://www.identity.org/ontologies/identity.owl#History",req.historyOfData)
-            .addUrl("http://www.ontotext.com/proton/protonext#Sale",req.dataSelling)
-            .addUrl("https://w3id.org/GConsent#Purpose",purposes)
-            .build();
-            
-        const dataAccessRequestThing = buildThing({ name: "CompanyRequest" })
-            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://vocab.data.gov/def/drm#DataAccess")
-            .addUrl("http://vocab.datex.org/terms#requestedBy", req.requestedBy)
-            .addUrl("http://purl.org/dc/terms/created", currentDate)
-            .addUrl("http://purl.org/linked-data/api/vocab#properties",Request)
+            .addStringNoLocale("http://purl.org/dc/terms/valid", new Date(req.selectedDate).toDateString())
+            .addStringNoLocale("http://vocab.deri.ie/cogs#Copy", req.isCopied)
+            .addStringNoLocale("http://www.identity.org/ontologies/identity.owl#History", req.historyOfData)
+            .addStringNoLocale("http://www.ontotext.com/proton/protonext#Sale", req.dataSelling)
+            .addStringNoLocale("https://w3id.org/GConsent#Purpose", purposes)
             .build();
 
-        const newThing = buildThing(createThing({ name: req.webId }))
-            .addStringNoLocale("http://dati.beniculturali.it/cis/UserType", usertype)
-            .addUrl("https://w3id.org/GDPRtEXT#ContractWithDataSubject", dataAccessRequestThing)
+        const dataAccessRequestThing = buildThing({ name: "Data_access_Request_" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://vocab.data.gov/def/drm#DataAccess")
+            .addStringNoLocale("http://vocab.datex.org/terms#requestedBy", req.requestedBy)
+            .addStringNoLocale("http://purl.org/dc/terms/created", currentDate)
+            .addUrl("http://purl.org/linked-data/api/vocab#properties", Request)
             .build();
-        courseSolidDataset = setThing(courseSolidDataset, newThing);
+
+        let newRequest;
+        let currentCompRequestThing = getThing(courseSolidDataset, dataseturl  + req.requestedBy);
+        if (currentCompRequestThing) {
+            newRequest = buildThing(currentCompRequestThing)
+            .addUrl("http://example.request#" + count, dataAccessRequestThing)
+            .build();
+        }
+        else {
+            newRequest = buildThing(createThing({ name: req.requestedBy }))
+                .addStringNoLocale("http://dati.beniculturali.it/cis/UserType", usertype)
+                .addUrl("http://example.request#" + count, dataAccessRequestThing)
+                .build();
+        }
+        courseSolidDataset = setThing(courseSolidDataset, newRequest);
+        courseSolidDataset = setThing(courseSolidDataset, dataAccessRequestThing);
+        courseSolidDataset = setThing(courseSolidDataset, Request);
+        courseSolidDataset = setThing(courseSolidDataset, requestCount);
+        this.saveGivenSolidDataset("https://solid-pcrv.inrupt.net/private/Requests/companyRequests.ttl",
+            courseSolidDataset, session)
     },
 
     // METHOD TO FETCH THE DATASET
