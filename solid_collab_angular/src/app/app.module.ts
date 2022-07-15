@@ -27,6 +27,7 @@ import { RequestResubmitPageComponent } from './request-resubmit-page/request-re
 import {MatListModule} from '@angular/material/list';
 import { ProfileComponentComponent } from './profile-component/profile-component.component';
 import {MatTabsModule} from '@angular/material/tabs';
+import {MatExpansionModule} from '@angular/material/expansion';
 
 @NgModule({
   declarations: [
@@ -59,7 +60,8 @@ import {MatTabsModule} from '@angular/material/tabs';
     MatNativeDateModule,
     MatTooltipModule,
     MatListModule,
-    MatTabsModule
+    MatTabsModule,
+    MatExpansionModule
     
   ],
   providers: [AuthserviceService],

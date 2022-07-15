@@ -10,9 +10,9 @@
     color: red;
 }
 
-mat-grid-tile {
+/* mat-grid-tile {
     background: lightblue;
-}
+} */
 
 mat-selection-list {
     max-height: 400px;

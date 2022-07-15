@@ -1,4 +1,4 @@
-import { Component, OnInit,OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { Session } from '@inrupt/solid-client-authn-browser';
 import { AuthserviceService } from '../authservice.service';
@@ -12,21 +12,21 @@ import {
   saveSolidDatasetAt
 } from "@inrupt/solid-client";
 
-import {FormBuilder} from '@angular/forms';
-import {DataAccessRequest} from '../model/data-access-request';
-import {AjaxResult} from '../model/constants';
+import { FormBuilder } from '@angular/forms';
+import { DataAccessRequest } from '../model/data-access-request';
+import { AjaxResult } from '../model/constants';
 
 interface Months {
   value: number;
   viewValue: string;
 }
 
-interface ShortAnswers{
+interface ShortAnswers {
   value: boolean;
-  viewValue:string;
+  viewValue: string;
 }
 
-export interface  checkBoxTask {
+export interface checkBoxTask {
   name: string;
   completed: boolean;
   subtasks?: checkBoxTask[];
@@ -39,25 +39,25 @@ export interface  checkBoxTask {
 })
 export class HomePageComponent implements OnInit {
 
-  constructor(private router: Router, private service: AuthserviceService,private _formBuilder: FormBuilder) { }
+  constructor(private router: Router, private service: AuthserviceService, private _formBuilder: FormBuilder) { }
   copysession = this.service.session;
   profName: string = "from home page";
-  dateSelected :number =  Date.now();
+  dateSelected: number = Date.now();
 
   months: Months[] = [
-    {value: 1, viewValue: 'one'},
-    {value: 2, viewValue: 'two'},
-    {value: 3, viewValue: 'three'},
+    { value: 1, viewValue: 'one' },
+    { value: 2, viewValue: 'two' },
+    { value: 3, viewValue: 'three' },
   ];
-  selectedMonth:number = 1;
+  selectedMonth: number = 1;
 
   shortAnswers: ShortAnswers[] = [
-    {value:true,viewValue:"yes"},
-    {value:false,viewValue:"no"}
+    { value: true, viewValue: "yes" },
+    { value: false, viewValue: "no" }
   ];
-  yesOrNo:boolean = true;
-  historyOfData:boolean =false;
-  dataSelling:boolean = false;
+  yesOrNo: boolean = true;
+  historyOfData: boolean = false;
+  dataSelling: boolean = false;
 
   dataAccessPurpose = this._formBuilder.group({
     Research: false,
@@ -68,8 +68,8 @@ export class HomePageComponent implements OnInit {
     name: 'Select All',
     completed: false,
     subtasks: [
-      {name: 'Research', completed: false},
-      {name: 'Analysis', completed: false},
+      { name: 'Research', completed: false },
+      { name: 'Analysis', completed: false },
       // {name: 'Warn', completed: false}
     ]
   };
@@ -102,14 +102,18 @@ export class HomePageComponent implements OnInit {
     this.service.session.logout();
     this.router.navigate(['/']);
   }
-  
-  async submit(){
+
+  async submit() {
     console.log(this.dateSelected);
-   let webId = this.copysession.info.webId || "";
-   let DAR:DataAccessRequest = new DataAccessRequest(webId,this.dateSelected,this.yesOrNo,this.task,this.historyOfData,this.dataSelling);
+    let webId = this.copysession.info.webId || "";
+    let DAR: DataAccessRequest = new DataAccessRequest(webId, this.dateSelected, this.yesOrNo, this.task, this.historyOfData, this.dataSelling);
     (await this.service.DARRequest(DAR)).subscribe((result: AjaxResult) => {
-    console.log(result);
-  });
+      console.log(result);
+      console.log("inside result");
+      if (result['message'] == "request_submitted") {
+        this.router.navigate(["/companyDashboard"], { state: { example: result['message'] } });
+      }
+    });
   }
 
   async ngOnInit(): Promise<void> {

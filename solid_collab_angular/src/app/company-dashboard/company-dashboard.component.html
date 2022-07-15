@@ -10,8 +10,8 @@
         <app-profile-component [profName]="profName"></app-profile-component>
     </mat-grid-tile>
     <!-- 2nd row 1st tile -->
-    <mat-grid-tile colspan="3" rowspan="6">
-        <div style="width: 100%; display: flex; align-items: flex-start;">
+    <mat-grid-tile colspan="3" rowspan="2">
+        <!-- <div style="width: 100%; display: flex; align-items: flex-start;">
             <mat-tab-group>
                 <mat-tab label="Data Access Request">
                     <app-home-page></app-home-page>
@@ -19,6 +19,30 @@
                 <mat-tab label="Second"> Content 2 </mat-tab>
                 <mat-tab label="Third"> Content 3 </mat-tab>
             </mat-tab-group>
-        </div>
+        </div> -->
+        <mat-accordion>
+            <mat-expansion-panel >
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Data Access Request
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        Page where company user creates and submits request to patient groups.
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <p>click  <button mat-raised-button color="green" (click)="redirect(redirectNames[0])">here</button> to redirect to data access request page</p>
+            </mat-expansion-panel>
+            <mat-expansion-panel >
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                       Request review page
+                    </mat-panel-title>
+                    <mat-panel-description>
+                      Page where submitted and returned data requests can be viewed.
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <p>click  <button mat-raised-button color="green" (click)="redirect(redirectNames[1])">here</button> to redirect to request review page</p>
+            </mat-expansion-panel>
+        </mat-accordion>
     </mat-grid-tile>
 </mat-grid-list>

@@ -34,6 +34,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     console.log("inside login")
     console.log(this.session.info.sessionId);
     localStorage.setItem("signup", "false");
+    localStorage.setItem("signupUser", this.USER_SELECTION);
     await this.session.login({
       oidcIssuer: this.SOLID_IDENTITY_PROVIDER,
       clientName: "SOLID PCRV",
@@ -57,6 +58,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     let webId = this.session.info.webId ? this.session.info.webId : "";
     let userSelection = localStorage.getItem("signupUser");
+    let routerparam =  userSelection=="USER"?"/userDashboard": "/companyDashboard";
 
     if (this.session.info.isLoggedIn) {
       let myAppProfile = await getSolidDataset(this.session.info.webId + "/user");
@@ -77,7 +79,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           console.log("after registration");
 
           if (result['message'] == "user Registered") {
-            this.route.navigate(['/homepage']);
+            this.route.navigate([routerparam]);
           }
           else {
             this._snackBar.open("user exists already Try logging in", "ok");
@@ -88,7 +90,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       else {// login logic
         (await this.service.checkUser(userLogged)).subscribe((result: AjaxResult) => {
           if (result['message'] == "login success") {
-            this.route.navigate(['/homepage']);
+            this.route.navigate([routerparam]);
           }
           else {
             this._snackBar.open("user not found, Try signing in", "ok");

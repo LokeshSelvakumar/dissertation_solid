@@ -18,11 +18,11 @@
                         <mat-icon id="upVoteButton">arrow_drop_up</mat-icon>
                     </button>
                 </li>
-                <li matTooltip="upvote" style="padding-left:16px; padding-bottom :20px">
-                    {{voteValue}}
+                <li matTooltip="upvote" style="padding-left:16px; padding-bottom :20px; color:green">
+                    {{upvoteValue}}
                 </li>
-                <li matTooltip="downvote" style=" padding-left:16px">
-                    {{voteValue}}
+                <li matTooltip="downvote" style=" padding-left:16px; color:red;">
+                    {{downvoteValue}}
                 </li>
                 <li>
                     <button mat-icon-button (click)="decrement()" color="red">
@@ -32,7 +32,7 @@
             </ul>
             <p>
                 <mat-form-field style="width: 70em;" appearance="fill">
-                    <mat-label>Company Request</mat-label>
+                    <mat-label>Company Request List</mat-label>
                     <textarea matInput placeholder="Ex. It makes me feel..." rows="20"
                         cols="40">{{companyRequestText}}</textarea>
                 </mat-form-field>
@@ -49,7 +49,7 @@
                 </mat-list-option>
             </mat-selection-list>
             <p>
-                Option selected: {{shoes.selectedOptions.selected[0]?.value}}
+                 selected Request: {{shoes.selectedOptions.selected[0]?.value}}
             </p>
         </div>
     </mat-grid-tile>
@@ -62,6 +62,4 @@
             </mat-form-field>
         </div>
     </mat-grid-tile>
-    <!-- 3rd row 1st tile -->
-    <mat-grid-tile></mat-grid-tile>
 </mat-grid-list>

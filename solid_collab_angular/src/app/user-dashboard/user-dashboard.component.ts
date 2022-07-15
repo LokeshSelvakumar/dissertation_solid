@@ -21,16 +21,18 @@ export class UserDashboardComponent implements OnInit {
   constructor(private router: Router, private service: AuthserviceService) { }
   copysession = this.service.session;
   profName: string = "from user dashboard";
-  voteValue = 2;
-  companyRequestText :string = "placeholder text";
+  upvoteValue = 2;
+  downvoteValue = 2;
+  companyRequestText :string = "1.patient Data access till 13-07-2022\n2.patient Data will be copied\n"+
+  "3.history of data collected will be maintained\n4.Patient data will be sold to third parties\n5.Patient data will be used for following purposes:Research, Analysis";
   typesOfShoes: string[] = ['request 1', 'request 2', 'request 3', 'request 4', 'request 5','request 6','request 7','request 8','request 9','request 10'];
 
   increment() {
-    this.voteValue++;
+    this.upvoteValue++;
   }
 
   decrement() {
-    this.voteValue--;
+    this.downvoteValue++;
   }
   logout() {
     this.service.session = new Session();
