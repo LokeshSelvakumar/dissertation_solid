@@ -182,6 +182,18 @@ app.post("/submitCompanyRequest", async function (req, res) {
   res.send({ message: message_to_be_sent });
 });
 
+app.post("/allCompanyRequests", async (req, res, next) => {
+  console.log(req);
+  let companyRequests;
+  try{
+   companyRequests =  await(service.getAllCompanyRequests(applicationSession.sessionId))
+  }
+  catch(Exception){
+    console.log(Exception);
+  }
+  res.send(companyRequests);
+});
+
 app.listen(port, () => {
   console.log(
     `Server running on port [${port}]. ` +

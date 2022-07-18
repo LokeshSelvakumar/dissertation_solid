@@ -10,6 +10,7 @@
         <mat-button-toggle-group [(ngModel)]="USER_SELECTION" aria-label="Font Style">
             <mat-button-toggle value="USER">&nbsp;&nbsp;USER&nbsp;&nbsp;</mat-button-toggle>
             <mat-button-toggle value="COMPANY">COMPANY</mat-button-toggle>
+            <mat-button-toggle value="ADMIN">ADMIN</mat-button-toggle>
         </mat-button-toggle-group>
     </mat-grid-tile>
     <mat-grid-tile rowspan="1">
@@ -32,7 +33,7 @@
             <p>&nbsp;&nbsp;&nbsp;&nbsp;</p>
         </div>
         <div>
-            <button mat-raised-button color="blue" (click)="signUP()"> SIGNUP </button>
+            <button mat-raised-button color="blue" [disabled] = "USER_SELECTION=='ADMIN'" (click)="signUP()"> SIGNUP </button>
         </div>
     </mat-grid-tile>
 </mat-grid-list>

@@ -1,5 +1,5 @@
 import { Optional } from '@angular/core';
-import { checkBoxTask } from '../home-page/home-page.component';
+import { checkBoxTask } from '../model/constants';
 export class DataAccessRequest {
     private requestedBy: string; // company
     private selectedDate: number;

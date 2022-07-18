@@ -15,7 +15,7 @@ import {
 import { Observable, windowWhen } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { User } from '../model/user-info';
-import {AjaxResult} from '../model/constants';
+import { AjaxResult } from '../model/constants';
 
 @Component({
   selector: 'app-login',
@@ -26,9 +26,12 @@ import {AjaxResult} from '../model/constants';
 export class LoginComponent implements OnInit, OnDestroy {
   constructor(private route: Router, private service: AuthserviceService, private _snackBar: MatSnackBar) {
   }
+
   SOLID_IDENTITY_PROVIDER?: string = "https://inrupt.net";
   USER_SELECTION: string = "USER";
   session = new Session();
+  validate: boolean = false;
+
 
   async login(): Promise<void> {
     console.log("inside login")
@@ -53,12 +56,14 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+
     //handle incoming redirect from solid identity provider after login
     await this.session.handleIncomingRedirect({ url: window.location.href });
 
     let webId = this.session.info.webId ? this.session.info.webId : "";
     let userSelection = localStorage.getItem("signupUser");
-    let routerparam =  userSelection=="USER"?"/userDashboard": "/companyDashboard";
+    let routerparam = userSelection == "USER" ? "/userDashboard" :
+      (userSelection == "ADMIN") ? "/adminDashboard" : "/companyDashboard";
 
     if (this.session.info.isLoggedIn) {
       let myAppProfile = await getSolidDataset(this.session.info.webId + "/user");
@@ -96,8 +101,8 @@ export class LoginComponent implements OnInit, OnDestroy {
             this._snackBar.open("user not found, Try signing in", "ok");
           }
         });
-          // resetting back local storage
-          localStorage.setItem("signup", "false");
+        // resetting back local storage
+        localStorage.setItem("signup", "false");
       }
     }
   }

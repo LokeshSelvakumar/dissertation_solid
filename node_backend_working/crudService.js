@@ -19,8 +19,14 @@ module.exports = {
     checkUserExist: async function (req, sessionID) {
         session = await getSessionFromStorage(sessionID);
         let dataseturl = CONSTANTS.POD_USER_IRI_REGISTRATION;
-        if (req.type != "USER") {
+        if (req.type == "USER") {
+            dataseturl = CONSTANTS.POD_USER_IRI_REGISTRATION;
+        }
+        else if (req.type == "COMPANY"){
             dataseturl = CONSTANTS.POD_COMPANY_IRI_REGISTRATION;
+        }
+        else {
+            dataseturl = CONSTANTS.ADMIN_TTL;
         }
 
         const myDataset = await (this.getGivenSolidDataset(dataseturl, session));// fetch from authenticated session
@@ -101,40 +107,104 @@ module.exports = {
 
         }
 
-        const Request = buildThing({ name: "DataRequestProperties_" + count })
-            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "https://w3id.org/GDPRtEXT#HealthData")
-            .addStringNoLocale("http://purl.org/dc/terms/valid", new Date(req.selectedDate).toDateString())
-            .addStringNoLocale("http://vocab.deri.ie/cogs#Copy", req.isCopied)
-            .addStringNoLocale("http://www.identity.org/ontologies/identity.owl#History", req.historyOfData)
-            .addStringNoLocale("http://www.ontotext.com/proton/protonext#Sale", req.dataSelling)
-            .addStringNoLocale("https://w3id.org/GConsent#Purpose", purposes)
-            .build();
-
-        const dataAccessRequestThing = buildThing({ name: "Data_access_Request_" + count })
-            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://vocab.data.gov/def/drm#DataAccess")
-            .addStringNoLocale("http://vocab.datex.org/terms#requestedBy", req.requestedBy)
-            .addStringNoLocale("http://purl.org/dc/terms/created", currentDate)
-            .addUrl("http://purl.org/linked-data/api/vocab#properties", Request)
-            .build();
-
-        let newRequest;
-        let currentCompRequestThing = getThing(courseSolidDataset, dataseturl  + req.requestedBy);
-        if (currentCompRequestThing) {
-            newRequest = buildThing(currentCompRequestThing)
-            .addUrl("http://example.request#" + count, dataAccessRequestThing)
-            .build();
+        if (req.requestedBy == '') {
+            req.requestedBy = "https://asegroup.inrupt.net/profile/card#me"
         }
-        else {
-            newRequest = buildThing(createThing({ name: req.requestedBy }))
-                .addStringNoLocale("http://dati.beniculturali.it/cis/UserType", usertype)
-                .addUrl("http://example.request#" + count, dataAccessRequestThing)
+
+        //dummy single constraint
+        let purposeConstraint = buildThing({ name: "http://example.com" + "#purposeConstraint" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/ns/odrl/2/Constraint")
+            .addUrl("http://www.w3.org/ns/odrl/2/leftOperand", "https://w3id.org/oac/Purpose")
+            .build();
+
+        if (purposes.length == 1) {
+            let urlPurpose;
+            if (purposes[0] == "Research") {
+                urlPurpose = "https://w3id.org/dpv#ResearchAndDevelopment";
+            }
+            else {
+                urlPurpose = "https://w3id.org/dpv#ServiceUsageAnalytics";
+            }
+            purposeConstraint = buildThing(purposeConstraint)
+                .addUrl("http://www.w3.org/ns/odrl/2/operator", "http://www.w3.org/ns/odrl/2/isA")
+                .addUrl("http://www.w3.org/ns/odrl/2/rightOperand", urlPurpose)
                 .build();
         }
+        else if (purposes.length > 1) {
+            purposeConstraint = buildThing(purposeConstraint)
+                .addUrl("http://www.w3.org/ns/odrl/2/operator", "http://www.w3.org/ns/odrl/2/isAnyOf")
+                .addUrl("http://www.w3.org/ns/odrl/2/rightOperand", "https://w3id.org/dpv#ResearchAndDevelopment")
+                .addUrl("http://www.w3.org/ns/odrl/2/rightOperand", "https://w3id.org/dpv#ServiceUsageAnalytics")
+                .build();
+        }
+
+        let d = new Date(req.selectedDate);
+        
+        let timeConstraintThing = buildThing({ name: "http://example.com" + "#timeConstraintThing" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/ns/odrl/2/Constraint")
+            .addUrl("http://www.w3.org/ns/odrl/2/leftOperand", "http://www.w3.org/ns/odrl/2/dateTime")
+            .addUrl("http://www.w3.org/ns/odrl/2/operator", "http://www.w3.org/ns/odrl/2/lteq")
+            .addDate("http://www.w3.org/ns/odrl/2/rightOperand", new Date(req.selectedDate))
+            .build();
+
+        let constraintThing = buildThing({ name: "http://example.com" + "#constraint" + count })
+            .addUrl("http://www.w3.org/ns/odrl/2/and", purposeConstraint)
+            .addUrl("http://www.w3.org/ns/odrl/2/and", timeConstraintThing)
+            .build();
+
+        var permissionThing = buildThing({ name: "http://example.com" + "#permission" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/ns/odrl/2/Permission")
+            .addUrl("http://www.w3.org/ns/odrl/2/assigner", req.requestedBy)
+            .addUrl("http://www.w3.org/ns/odrl/2/target", "https://w3id.org/oac/Contact")
+            .addUrl("http://www.w3.org/ns/odrl/2/action", "https://w3id.org/oac/Read")
+            .addUrl("http://www.w3.org/ns/odrl/2/action", "https://w3id.org/oac/Write").build();
+
+        if (req.isCopied) {
+            permissionThing = buildThing(permissionThing)
+                .addUrl("http://www.w3.org/ns/odrl/2/action", "https://w3id.org/oac/Copy")
+                .build();
+        }
+        if (req.historyOfData) {
+            permissionThing = buildThing(permissionThing)
+                .addUrl("http://www.w3.org/ns/odrl/2/action", "https://w3id.org/oac/Record")
+                .build();
+        }
+        if (req.dataSelling) {
+            permissionThing = buildThing(permissionThing)
+                .addUrl("http://www.w3.org/ns/odrl/2/action", "https://w3id.org/oac/sell")
+                .build();
+        }
+        permissionThing = buildThing(permissionThing)
+            .addUrl("http://www.w3.org/ns/odrl/2/constraint", constraintThing)
+            .build();
+
+        let dataAccessRequestThing = buildThing({ name: "http://example.com" + "#policy" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/ns/odrl/2/Policy")
+            .addUrl("http://www.w3.org/ns/odrl/2/profile", "https://w3id.org/oac/")
+            .addUrl("http://www.w3.org/ns/odrl/2/Permission", permissionThing)
+            .addStringNoLocale("http://purl.org/dc/terms/created", currentDate)
+            .build();
+
+        let currentCompRequestThing = getThing(courseSolidDataset, dataseturl + "#" + "http://example.com/companyrequests");
+        let newRequest;
+        if (currentCompRequestThing) {
+            newRequest = buildThing(currentCompRequestThing)
+                .addUrl("http://example.com/requests", dataAccessRequestThing)
+                .build();
+        }
+        else {
+            newRequest = buildThing(createThing({ name: "http://example.com/companyrequests" }))
+                .addUrl("http://example.com/requests", dataAccessRequestThing)
+                .build();
+        }
+        courseSolidDataset = setThing(courseSolidDataset, requestCount);
         courseSolidDataset = setThing(courseSolidDataset, newRequest);
         courseSolidDataset = setThing(courseSolidDataset, dataAccessRequestThing);
-        courseSolidDataset = setThing(courseSolidDataset, Request);
-        courseSolidDataset = setThing(courseSolidDataset, requestCount);
-        this.saveGivenSolidDataset("https://solid-pcrv.inrupt.net/private/Requests/companyRequests.ttl",
+        courseSolidDataset = setThing(courseSolidDataset, permissionThing);
+        courseSolidDataset = setThing(courseSolidDataset, constraintThing);
+        courseSolidDataset = setThing(courseSolidDataset, purposeConstraint);
+        courseSolidDataset = setThing(courseSolidDataset, timeConstraintThing);
+        this.saveGivenSolidDataset(CONSTANTS.COMPANY_REQUESTS,
             courseSolidDataset, session)
     },
 
@@ -149,6 +219,11 @@ module.exports = {
             courseSolidDataset,      // fetch from authenticated Session
             { fetch: session.fetch }
         );
+    },
+
+    getAllCompanyRequests:async function (sessionId){
+        session = await getSessionFromStorage(sessionId);
+        return await this.getGivenSolidDataset(CONSTANTS.COMPANY_REQUESTS, session);
     }
 }
 

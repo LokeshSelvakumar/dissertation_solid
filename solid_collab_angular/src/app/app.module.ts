@@ -28,6 +28,8 @@ import {MatListModule} from '@angular/material/list';
 import { ProfileComponentComponent } from './profile-component/profile-component.component';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatExpansionModule} from '@angular/material/expansion';
+import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -37,7 +39,8 @@ import {MatExpansionModule} from '@angular/material/expansion';
     CompanyDashboardComponent,
     UserDashboardComponent,
     RequestResubmitPageComponent,
-    ProfileComponentComponent
+    ProfileComponentComponent,
+    AdminDashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -61,7 +64,8 @@ import {MatExpansionModule} from '@angular/material/expansion';
     MatTooltipModule,
     MatListModule,
     MatTabsModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatProgressSpinnerModule
     
   ],
   providers: [AuthserviceService],

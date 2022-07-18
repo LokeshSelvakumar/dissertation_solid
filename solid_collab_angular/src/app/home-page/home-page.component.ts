@@ -14,23 +14,23 @@ import {
 
 import { FormBuilder } from '@angular/forms';
 import { DataAccessRequest } from '../model/data-access-request';
-import { AjaxResult } from '../model/constants';
+import { AjaxResult, Months,ShortAnswers,checkBoxTask} from '../model/constants';
 
-interface Months {
-  value: number;
-  viewValue: string;
-}
+// interface Months {
+//   value: number;
+//   viewValue: string;
+// }
 
-interface ShortAnswers {
-  value: boolean;
-  viewValue: string;
-}
+// interface ShortAnswers {
+//   value: boolean;
+//   viewValue: string;
+// }
 
-export interface checkBoxTask {
-  name: string;
-  completed: boolean;
-  subtasks?: checkBoxTask[];
-}
+// export interface checkBoxTask {
+//   name: string;
+//   completed: boolean;
+//   subtasks?: checkBoxTask[];
+// }
 
 @Component({
   selector: 'app-home-page',
@@ -70,7 +70,6 @@ export class HomePageComponent implements OnInit {
     subtasks: [
       { name: 'Research', completed: false },
       { name: 'Analysis', completed: false },
-      // {name: 'Warn', completed: false}
     ]
   };
 

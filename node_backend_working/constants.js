@@ -6,5 +6,6 @@ module.exports = {
     FOAF_ORGANIZATION: "http://xmlns.com/foaf/0.1/Organization",
     POD_USER_IRI_REGISTRATION: "https://solid-pcrv.inrupt.net/private/userDetails/userRecord.ttl",
     POD_COMPANY_IRI_REGISTRATION: "https://solid-pcrv.inrupt.net/private/userDetails/companyRecord.ttl",
-    COMPANY_REQUESTS:"https://solid-pcrv.inrupt.net/private/Requests/companyRequests.ttl"
+    COMPANY_REQUESTS:"https://solid-pcrv.inrupt.net/private/Requests/companyRequests.ttl",
+    ADMIN_TTL:"https://solid-pcrv.inrupt.net/private/userDetails/adminRecord.ttl"
 }
