@@ -13,7 +13,7 @@ const routes: Routes = [
   {path: 'companyDashboard', component: CompanyDashboardComponent },
   {path: 'adminDashboard', component: AdminDashboardComponent },
 // for dev purposes
-  { path: '', component: LoginComponent  },
+  { path: '', component: CompanyDashboardComponent  },
 
 
 ];

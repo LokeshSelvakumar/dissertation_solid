@@ -1,0 +1,18 @@
+mat-grid-tile {
+    background: lightblue;
+}
+
+.mat-blue {
+    background-color: #0e71ad;
+    color: white;
+}
+
+.mat-red{
+    background-color: indianred;
+    color:white;
+}
+
+ul {
+    list-style-type: none;
+    margin-top: 4px;
+  }
