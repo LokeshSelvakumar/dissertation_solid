@@ -177,12 +177,19 @@ module.exports = {
         permissionThing = buildThing(permissionThing)
             .addUrl("http://www.w3.org/ns/odrl/2/constraint", constraintThing)
             .build();
+        
+        let commentThing = buildThing({ name: "http://example.com" + "#commentThing" + count })
+        .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type","http://schema.org/comment")
+        .build();
 
         let dataAccessRequestThing = buildThing({ name: "http://example.com" + "#policy" + count })
             .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/ns/odrl/2/Policy")
             .addUrl("http://www.w3.org/ns/odrl/2/profile", "https://w3id.org/oac/")
             .addUrl("http://www.w3.org/ns/odrl/2/Permission", permissionThing)
             .addStringNoLocale("http://purl.org/dc/terms/created", currentDate)
+            .addInteger("http://schema.org/upvoteCount",0)
+            .addInteger("http://schema.org/downvoteCount",0)
+            .addUrl("http://schema.org/comment",commentThing)
             .build();
 
         let currentCompRequestThing = getThing(courseSolidDataset, dataseturl + "#" + "http://example.com/companyrequests");
@@ -204,6 +211,7 @@ module.exports = {
         courseSolidDataset = setThing(courseSolidDataset, constraintThing);
         courseSolidDataset = setThing(courseSolidDataset, purposeConstraint);
         courseSolidDataset = setThing(courseSolidDataset, timeConstraintThing);
+        courseSolidDataset = setThing(courseSolidDataset,commentThing);
         this.saveGivenSolidDataset(CONSTANTS.COMPANY_REQUESTS,
             courseSolidDataset, session)
     },

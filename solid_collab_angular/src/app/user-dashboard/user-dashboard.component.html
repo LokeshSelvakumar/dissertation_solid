@@ -7,56 +7,61 @@
     </mat-grid-tile>
     <!-- 3rd tile -->
     <mat-grid-tile>
-        <app-profile-component [profName] = "profName"></app-profile-component>
+        <app-profile-component [profName]="profName"></app-profile-component>
     </mat-grid-tile>
     <!-- 2nd row 1st tile -->
-    <mat-grid-tile colspan="2" rowspan="4" class="video-title">
-        <div style="width: 100%; display: flex; align-items: flex-start">
-            <ul id="upvotebuttonList" disabled>
-                <li>
-                    <button mat-icon-button (click)="increment()" color="green">
-                        <mat-icon id="upVoteButton">arrow_drop_up</mat-icon>
-                    </button>
-                </li>
-                <li matTooltip="upvote" style="padding-left:16px; padding-bottom :20px; color:green">
-                    {{upvoteValue}}
-                </li>
-                <li matTooltip="downvote" style=" padding-left:16px; color:red;">
-                    {{downvoteValue}}
-                </li>
-                <li>
-                    <button mat-icon-button (click)="decrement()" color="red">
-                        <mat-icon id="downVoteButton">arrow_drop_down</mat-icon>
-                    </button>
-                </li>
-            </ul>
-            <p>
-                <mat-form-field style="width: 70em;" appearance="fill">
-                    <mat-label>Company Request List</mat-label>
-                    <textarea matInput placeholder="Ex. It makes me feel..." rows="20"
-                        cols="40">{{companyRequestText}}</textarea>
-                </mat-form-field>
-            </p>
-        </div>
-    </mat-grid-tile>
-    <!-- 2nd row 2nd tile -->
     <mat-grid-tile rowspan="4">
-        <div class="request-tile">
-            <h3>Company Requests</h3>
+        <mat-spinner *ngIf="loadingSpinner" ></mat-spinner>
+        <div *ngIf="!loadingSpinner && policiesLength == 0">
+            <p>No data</p>
+        </div>
+        <div class="request-tile" *ngIf="!loadingSpinner && policiesLength != 0">
+            <h3>Select company data access requests to see the terms and conditions</h3>
             <mat-selection-list #shoes [multiple]="false">
-                <mat-list-option *ngFor="let shoe of typesOfShoes" [value]="shoe">
+                <mat-list-option (click) = "triggerParamLoad(shoes.selectedOptions.selected[0]?.value)" *ngFor="let shoe of typesOfShoes; let i = index" [value]="shoe" [selected]="shoe && i == 0">
                     {{shoe}}
                 </mat-list-option>
             </mat-selection-list>
-            <p>
-                 selected Request: {{shoes.selectedOptions.selected[0]?.value}}
-            </p>
+            <!-- <p>
+                selected Request: {{shoes.selectedOptions.selected[0]?.value}}
+            </p> -->
         </div>
     </mat-grid-tile>
-    <!-- 2nd row 3rd tile -->
-    <mat-grid-tile rowspan="1" colspan="3" style="text-align: left;" class="video-title">
-        <div style="width: 100%; display: flex; align-items: flex-start; padding-left:90px">
-            <mat-form-field style="width: 50em;" appearance="fill">
+    <mat-grid-tile colspan="2" rowspan="4" class="video-title">
+        <div *ngIf="!loadingSpinner && policiesLength == 0">
+            <p>No data</p>
+        </div>
+        <mat-spinner *ngIf="loadingSpinner " ></mat-spinner>
+        <div style="width: 100%; display: inline-block; align-items: flex-start;" *ngIf="!loadingSpinner  && policiesLength != 0">
+            <div style="width: 100%; display: flex; align-items: flex-start">
+                <ul id="upvotebuttonList" disabled>
+                    <li>
+                        <button mat-icon-button (click)="increment()" color="green" [disabled]="upvotesDisabled">
+                            <mat-icon id="upVoteButton">arrow_drop_up</mat-icon>
+                        </button>
+                    </li>
+                    <li  style="padding-left:16px; padding-bottom :20px; color:green">
+                        {{upvoteValue}}
+                    </li>
+                    <li style=" padding-left:16px; color:red;">
+                        {{downvoteValue}}
+                    </li>
+                    <li>
+                        <button mat-icon-button (click)="decrement()" color="red" [disabled]="downvotesDisabled">
+                            <mat-icon id="downVoteButton">arrow_drop_down</mat-icon>
+                        </button>
+                    </li>
+                </ul>
+                <p>
+                    <mat-form-field style="width: 70em;" appearance="fill">
+                        <mat-label>Company Request List</mat-label>
+                        <textarea matInput placeholder="Ex. It makes me feel..." rows="8" disabled
+                            cols="40" style = "resize:none">{{companyRequestText}}</textarea>
+                    </mat-form-field>
+                </p>
+            </div>
+
+            <mat-form-field style="width: 50em; padding-left:5em" appearance="fill">
                 <mat-label>Leave a comment</mat-label>
                 <textarea matInput placeholder="Ex. It makes me feel..." rows="5" cols="5"></textarea>
             </mat-form-field>

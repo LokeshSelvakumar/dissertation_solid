@@ -18,6 +18,8 @@ export class AdminDashboardComponent implements OnInit {
   enabled_flag: boolean = true;
   loadingSpinner: boolean = true;
   policiesLength: number = 0;
+  upvotes:number = 0;
+  downVotes:number = 0;
   months: Months[] = [
     { value: 1, viewValue: 'one' },
     { value: 2, viewValue: 'two' },
@@ -55,7 +57,9 @@ export class AdminDashboardComponent implements OnInit {
     let fieldsToUpdate = this.service.updateFields(selectedVal);
     this.updateFieldsInPage(fieldsToUpdate);
   }
+  accept(){
 
+  }
   updateAllComplete() {
     this.allComplete = this.task.subtasks != null && this.task.subtasks.every(t => t.completed);
     console.log(this.task.subtasks);
@@ -145,6 +149,8 @@ export class AdminDashboardComponent implements OnInit {
     if (this.task.subtasks?.[1]) {
       this.task.subtasks[1]['completed'] = fieldsToUpdate['analysis'];
     }
+    this.upvotes = fieldsToUpdate['upvote'];
+    this.downVotes = fieldsToUpdate['downvote'];
   }
 
 }
