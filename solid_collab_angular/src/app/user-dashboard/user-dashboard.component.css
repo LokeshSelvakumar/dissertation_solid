@@ -10,9 +10,11 @@
     color: red;
 }
 
-/* mat-grid-tile {
+mat-grid-tile {
     background: lightblue;
-} */
+    
+}
+
 
 mat-selection-list {
     max-height: 400px;
@@ -24,12 +26,10 @@ request-tile {
     flex-direction: column !important;
 }
 
-/* .video-title>figure {
-    justify-content: flex-start !important;
-} */
+.pad-top-heading{
+    padding-top:5em;
+}
 
-/* #upVoteButton, #downVoteButton {
-    height:60px !important;
-    width:60px !important;
-    font-size:60px !important;
-} */
+.pad-top-item{
+    padding-top:4em;
+}

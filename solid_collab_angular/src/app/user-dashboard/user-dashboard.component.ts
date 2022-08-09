@@ -1,59 +1,57 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { Session } from '@inrupt/solid-client-authn-browser';
 import { AuthserviceService } from '../authservice.service';
+import { checkBoxTask, ShortAnswers } from '../model/constants';
+import { collection,doc,setDoc,Firestore } from '@angular/fire/firestore';
 import {
   getSolidDataset,
-  getThing,
-  setThing,
-  getStringNoLocale,
-  setStringNoLocale,
-  saveSolidDatasetAt
+  getThing
 } from "@inrupt/solid-client";
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-user-dashboard',
   templateUrl: './user-dashboard.component.html',
-  styleUrls: ['./user-dashboard.component.css']
+  styleUrls: ['./user-dashboard.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class UserDashboardComponent implements OnInit {
 
-  constructor(private router: Router, private service: AuthserviceService) { }
+  constructor(private router: Router, private service: AuthserviceService,private store: Firestore) { 
+    
+  }
+   dbFire = collection(this.store,"solidcollab");
   copysession = this.service.session;
+  dateSelected = new Date();
   policiesLength: number = 0;
-  loadingSpinner:boolean = true;
+  loadingSpinner: boolean = true;
   profName: string = "from user dashboard";
-  upvoteValue = 2;
-  downvoteValue = 2;
-  upvotesDisabled = false;
-  downvotesDisabled = false;
-  companyRequestText: string = "1.patient Data access till 13-07-2022\n2.patient Data will be copied\n" +
-    "3.history of data collected will be maintained\n4.Patient data will be sold to third parties\n5.Patient data will be used for following purposes:Research, Analysis";
-  typesOfShoes: string[] = ['request 1', 'request 2', 'request 3', 'request 4', 'request 5', 'request 6', 'request 7', 'request 8', 'request 9', 'request 10'];
 
-  increment() {
-    if(!this.upvotesDisabled && !this.downvotesDisabled){
-      this.upvoteValue++;
-    }
-    else{
-      this.upvoteValue++;
-      this.downvoteValue--;
-    }
-    this.upvotesDisabled = true;
-    this.downvotesDisabled = false;
-  }
+  dataSelling = false;
+  historyOfData = false;
+  yesOrNo = false;
+  allComplete: boolean = false;
+  task: checkBoxTask = {
+    name: 'Select All',
+    completed: false,
+    subtasks: [
+      { name: 'Research', completed: false },
+      { name: 'Analysis', completed: false },
+    ]
+  };
+  
+  shortAnswers: ShortAnswers[] = [
+    { value: true, viewValue: "yes" },
+    { value: false, viewValue: "no" }
+  ];
+  typesOfShoes: string[] = [];
 
-  decrement() {
-    if(!this.upvotesDisabled && !this.downvotesDisabled){
-      this.downvoteValue++;
-    }
-    else{
-      this.downvoteValue++;
-      this.upvoteValue--;
-    }
-    this.downvotesDisabled = true;
-    this.upvotesDisabled = false;
-  }
+  //vote component variables
+  timeVoteComponentInputs: any[] = [20, 15, false, false,"timeVoteParams"];
+  purposeVoteComponentInputs:any[]=[212,223,true,true,"purposeVoteAttr"];
+  
+
   logout() {
     this.service.session = new Session();
     this.service.session.logout();
@@ -63,8 +61,25 @@ export class UserDashboardComponent implements OnInit {
   triggerParamLoad(selectedVal: any) {
     console.log("inside trigger param load");
     console.log(selectedVal);
+    this.service.selectedPolicy = selectedVal;
     let fieldsToUpdate = this.service.updateFields(selectedVal);
     this.updateFieldsInPage(fieldsToUpdate);
+  }
+  setAll(completed: boolean) {
+    this.allComplete = completed;
+    if (this.task.subtasks == null) {
+      return;
+    }
+    this.task.subtasks.forEach(t => (t.completed = completed));
+    console.log(this.task.subtasks);
+  }
+
+  someComplete(): boolean {
+    if (this.task.subtasks == null) {
+      return false;
+    }
+    return this.task.subtasks.filter(t => t.completed).length > 0 && !this.allComplete;
+    console.log(this.task.subtasks);
   }
 
   async ngOnInit(): Promise<void> {
@@ -107,17 +122,44 @@ export class UserDashboardComponent implements OnInit {
       this.typesOfShoes = localarrayrequests;
     });
   }
+  updateAllComplete() {
+    this.allComplete = this.task.subtasks != null && this.task.subtasks.every(t => t.completed);
+    console.log(this.task.subtasks);
+  }
 
   updateFieldsInPage(fieldsToUpdate: any) {
-    let copyText = fieldsToUpdate['yesOrNo']?"be copied":"not be copied";
-    let historyText = fieldsToUpdate['history']?"be maintained":"not be maintained";
-    let datasellingText = fieldsToUpdate['dataselling']?"be sold to third parties":"not be sold to third parties";
-    let researchText = fieldsToUpdate['research']?"Research":"";
-    let analysisText = fieldsToUpdate['analysis'] && fieldsToUpdate['research']?", Analysis":fieldsToUpdate['analysis']?"Analysis":"";
-    this.upvoteValue = fieldsToUpdate['upvote'];
-    this.downvoteValue = fieldsToUpdate['downvote'];
-    this.companyRequestText = "1.patient Data access till " + fieldsToUpdate['date'] + "\n2.patient Data will "+historyText+
-    "\n3.history of data collected "+historyText+"\n4.Patient data will "+datasellingText+"\n5.Patient data will be used for following purposes:"+researchText+analysisText ;
+    this.dateSelected = fieldsToUpdate['date'];
+    this.yesOrNo = fieldsToUpdate['yesOrNo'];
+    this.dataSelling = fieldsToUpdate['dataselling'];
+    this.historyOfData = fieldsToUpdate['history'];
+    if (this.task.subtasks?.[0]) {
+      this.task.subtasks[0]['completed'] = fieldsToUpdate['research'];
+    }
+    if (this.task.subtasks?.[1]) {
+      this.task.subtasks[1]['completed'] = fieldsToUpdate['analysis'];
+    }
+    this.timeVoteComponentInputs = this.extractVoteInputs(fieldsToUpdate['timeVoteParams'],"timeVoteParams");
+    this.purposeVoteComponentInputs = this.extractVoteInputs(fieldsToUpdate['purposeVoteAttr'],"purposeVoteAttr");
+
+  }
+
+  extractVoteInputs(fieldsReceived: any,componentMapping:string) {
+    let disableUp, disableDown;
+    if (fieldsReceived[2] == false) {
+      disableUp = false;
+      disableDown = false;
+    }
+    else {
+      if (fieldsReceived[3] == "upvote") {
+        disableUp = true;
+        disableDown = false;
+      }
+      else {
+        disableUp = false;
+        disableDown = true;
+      }
+    }
+    return [fieldsReceived[0], fieldsReceived[1], disableUp, disableDown,componentMapping]
   }
 }
 

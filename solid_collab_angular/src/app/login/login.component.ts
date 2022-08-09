@@ -31,7 +31,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   USER_SELECTION: string = "USER";
   session = new Session();
   validate: boolean = false;
-
+  
 
   async login(): Promise<void> {
     console.log("inside login")
@@ -84,6 +84,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           console.log("after registration");
 
           if (result['message'] == "user Registered") {
+            this.service.userLoggedIn = userLogged;
             this.route.navigate([routerparam]);
           }
           else {
@@ -95,6 +96,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       else {// login logic
         (await this.service.checkUser(userLogged)).subscribe((result: AjaxResult) => {
           if (result['message'] == "login success") {
+            this.service.userLoggedIn = userLogged;
             this.route.navigate([routerparam]);
           }
           else {

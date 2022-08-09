@@ -12,7 +12,7 @@
   </mat-grid-tile>
   <mat-grid-tile></mat-grid-tile>
   <mat-grid-tile>
-    <h4 matTooltip="http://purl.org/dc/terms/valid" >patient Data access till &nbsp;&nbsp;&nbsp;</h4>
+    <h4 matTooltip="http://www.w3.org/ns/odrl/2/Constraint">patient Data access till &nbsp;&nbsp;&nbsp;</h4>
     <mat-form-field appearance="fill">
       <mat-label>Choose a date</mat-label>
       <input matInput [matDatepicker]="picker" [(ngModel)] = "dateSelected">
@@ -23,7 +23,7 @@
 
   </mat-grid-tile>
   <mat-grid-tile>
-    <h4 matTooltip = "http://vocab.deri.ie/cogs#Copy">patient Data will be copied &nbsp;&nbsp;&nbsp;</h4>
+    <h4 matTooltip="http://www.w3.org/ns/odrl/2/action">patient Data will be copied &nbsp;&nbsp;&nbsp;</h4>
     <mat-form-field appearance="fill">
       <mat-label>yes/no</mat-label>
       <mat-select [(ngModel)]="yesOrNo" name="shortAnswer">
@@ -34,7 +34,7 @@
     </mat-form-field>
   </mat-grid-tile>
   <mat-grid-tile>
-    <h4 matTooltip = "http://www.identity.org/ontologies/identity.owl#History">history of data collected will be maintained&nbsp;&nbsp;&nbsp;</h4>
+    <h4 matTooltip="http://www.w3.org/ns/odrl/2/action">history of data collected will be maintained&nbsp;&nbsp;&nbsp;</h4>
     <mat-form-field appearance="fill">
       <mat-label>yes/no</mat-label>
       <mat-select [(ngModel)]="historyOfData" name="shortAnswer">
@@ -45,7 +45,7 @@
     </mat-form-field>
   </mat-grid-tile>
   <mat-grid-tile>
-    <h4 matTooltip = "http://www.ontotext.com/proton/protonext#Sale">Patient data will be sold to third parties&nbsp;&nbsp;&nbsp;</h4>
+    <h4  matTooltip="http://www.w3.org/ns/odrl/2/action">Patient data will be sold to third parties&nbsp;&nbsp;&nbsp;</h4>
     <mat-form-field appearance="fill">
       <mat-label>yes/no</mat-label>
       <mat-select [(ngModel)]="dataSelling" name="shortAnswer">
@@ -57,7 +57,7 @@
   </mat-grid-tile>
   <mat-grid-tile>
     <section class="purpose-section">
-      <h4 matTooltip = "https://w3id.org/GConsent#Purpose">Patient data will be used for following purposes:</h4>
+      <h4 matTooltip="http://www.w3.org/ns/odrl/2/Constraint">Patient data will be used for following purposes:</h4>
       <span class="purpose-list-section">
         <mat-checkbox class="purpose-margin" [checked]="allComplete" [indeterminate]="someComplete()"
           (change)="setAll($event.checked)">

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { AuthserviceService } from '../authservice.service';
 import {
   getSolidDataset,
@@ -9,6 +9,7 @@ import {
   setStringNoLocale,
   saveSolidDatasetAt
 } from "@inrupt/solid-client";
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-company-dashboard',
@@ -16,17 +17,29 @@ import {
   styleUrls: ['./company-dashboard.component.css']
 })
 export class CompanyDashboardComponent implements OnInit {
-
-  constructor(private router: Router, private service: AuthserviceService,) { }
+  fromPage = "";
+  constructor(private router: Router, private service: AuthserviceService, private paramroute: ActivatedRoute,private _snackBar: MatSnackBar) {
+    paramroute.queryParams.subscribe((params:Params) => {
+      console.log("inside constructor of router params");
+      console.log(params);
+      console.log(params['message']);
+      this.fromPage = params['message'];
+    });
+  }
   profName: string = "from company dashboard";
   copysession = this.service.session;
-  redirectNames = ['/homepage','/userDashboard'];
-  redirect(redirectName:string){
+  redirectNames = ['/homepage', '/userDashboard'];
+  redirect(redirectName: string) {
     console.log(redirectName);
     this.router.navigate([redirectName]);
   }
 
   async ngOnInit(): Promise<void> {
+    console.log("route rparam");
+    console.log(this.fromPage);
+    if(this.fromPage == "request_submitted"){
+      this._snackBar.open("request submitted","ok");
+    }
     await this.copysession.handleIncomingRedirect({ url: window.location.href, restorePreviousSession: true });
     let webId = this.copysession.info.webId || "";
     let profileDocumentUrl = new URL(webId);

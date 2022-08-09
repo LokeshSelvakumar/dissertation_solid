@@ -5,12 +5,16 @@ import { AuthserviceService } from '../authservice.service';
 import { getSolidDataset, getThing, SolidDataset } from '@inrupt/solid-client';
 import { companyRequests } from '../model/constants';
 import { Observable } from 'rxjs';
+import { collection, doc, setDoc, Firestore, getDoc } from '@angular/fire/firestore';
+
+
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })
 export class AdminDashboardComponent implements OnInit {
+  // dbFire = collection(this.store, "solidcollab");
   copysession = this.service.session;
   profName: string = "from admin screen";
   dateSelected: any = Date.now();
@@ -18,8 +22,8 @@ export class AdminDashboardComponent implements OnInit {
   enabled_flag: boolean = true;
   loadingSpinner: boolean = true;
   policiesLength: number = 0;
-  upvotes:number = 0;
-  downVotes:number = 0;
+  upvotes: number = 0;
+  downVotes: number = 0;
   months: Months[] = [
     { value: 1, viewValue: 'one' },
     { value: 2, viewValue: 'two' },
@@ -57,7 +61,7 @@ export class AdminDashboardComponent implements OnInit {
     let fieldsToUpdate = this.service.updateFields(selectedVal);
     this.updateFieldsInPage(fieldsToUpdate);
   }
-  accept(){
+  accept() {
 
   }
   updateAllComplete() {
@@ -96,9 +100,21 @@ export class AdminDashboardComponent implements OnInit {
     console.log(this.task.subtasks);
   }
   typesOfShoes: string[] = ['request 1', 'request 2'];
-  constructor(private _formBuilder: FormBuilder, private service: AuthserviceService) { }
+  constructor(private _formBuilder: FormBuilder, private service: AuthserviceService, private store: Firestore) {
+    
+  }
 
   async ngOnInit(): Promise<void> {
+    const docRef = doc(this.store, "solidcollab", "policies");
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log("Document data:", docSnap.data());
+    } else {
+      // doc.data() will be undefined in this case
+      console.log("No such document!");
+    }
+
     await this.copysession.handleIncomingRedirect({ url: window.location.href, restorePreviousSession: true });
     let webId = this.copysession.info.webId || "";
     let profileDocumentUrl = new URL(webId);

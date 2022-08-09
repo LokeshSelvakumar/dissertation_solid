@@ -2,6 +2,18 @@ const express = require("express");
 const service = require("./crudService.js");
 const cookieSession = require("cookie-session");
 const cors = require('cors');
+// const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+// const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore');
+
+// const serviceAccount = require('C:/Users/lokes/Downloads/pcrvsolidcollab-firebase-adminsdk-6kwdf-d26c87afaa.json');
+
+// initializeApp({
+//   credential: cert(serviceAccount)
+// });
+
+// const db = getFirestore();
+
+
 
 const {
   getSessionFromStorage,
@@ -114,6 +126,11 @@ app.get("/login", async (req, res, next) => {
     clientName: "local demo app",
     handleRedirect: redirectToSolidIdentityProvider,
   });
+
+  // const snapshot = await db.collection('solidcollab').get();
+  // snapshot.forEach((doc) => {
+  //   console.log(doc.id, '=>', doc.data());
+  // });
 });
 
 app.get("/redirect-from-solid-idp", async (req, res) => {
@@ -185,10 +202,10 @@ app.post("/submitCompanyRequest", async function (req, res) {
 app.post("/allCompanyRequests", async (req, res, next) => {
   console.log(req);
   let companyRequests;
-  try{
-   companyRequests =  await(service.getAllCompanyRequests(applicationSession.sessionId))
+  try {
+    companyRequests = await (service.getAllCompanyRequests(applicationSession.sessionId))
   }
-  catch(Exception){
+  catch (Exception) {
     console.log(Exception);
   }
   res.send(companyRequests);

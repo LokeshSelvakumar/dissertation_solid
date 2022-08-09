@@ -22,7 +22,7 @@ module.exports = {
         if (req.type == "USER") {
             dataseturl = CONSTANTS.POD_USER_IRI_REGISTRATION;
         }
-        else if (req.type == "COMPANY"){
+        else if (req.type == "COMPANY") {
             dataseturl = CONSTANTS.POD_COMPANY_IRI_REGISTRATION;
         }
         else {
@@ -110,11 +110,60 @@ module.exports = {
         if (req.requestedBy == '') {
             req.requestedBy = "https://asegroup.inrupt.net/profile/card#me"
         }
+        let timevoteGroup = buildThing({ name: "http://example.com" + "#timepeopleVoted" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://d-nb.info/standards/elementset/gnd#GroupOfPersons")
+            .build();
+        let purposevoteGroup = buildThing({ name: "http://example.com" + "#purposepeopleVoted" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://d-nb.info/standards/elementset/gnd#GroupOfPersons")
+            .build();
+        let historyvoteGroup = buildThing({ name: "http://example.com" + "#historypeopleVoted" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://d-nb.info/standards/elementset/gnd#GroupOfPersons")
+            .build();
+        let datasellvoteGroup = buildThing({ name: "http://example.com" + "#datasellpeopleVoted" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://d-nb.info/standards/elementset/gnd#GroupOfPersons")
+            .build();
+        let copyvoteGroup = buildThing({ name: "http://example.com" + "#datacopyvoteGroup" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://d-nb.info/standards/elementset/gnd#GroupOfPersons")
+            .build();
+
+
+
+        let timevoteThing = buildThing({ name: "http://example.com" + "#timevoteDetails" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/2002/07/owl#Thing")
+            .addInteger("http://schema.org/upvoteCount", 0)
+            .addInteger("http://schema.org/downvoteCount", 0)
+            .addUrl("http://d-nb.info/standards/elementset/gnd#GroupOfPersons", timevoteGroup)
+            .build();
+        let purposeVoteThing = buildThing({ name: "http://example.com" + "#purposevoteDetails" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/2002/07/owl#Thing")
+            .addInteger("http://schema.org/upvoteCount", 0)
+            .addInteger("http://schema.org/downvoteCount", 0)
+            .addUrl("http://d-nb.info/standards/elementset/gnd#GroupOfPersons", purposevoteGroup)
+            .build();
+        let copyVoteThing = buildThing({ name: "http://example.com" + "#copyVoteDetails" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/2002/07/owl#Thing")
+            .addInteger("http://schema.org/upvoteCount", 0)
+            .addInteger("http://schema.org/downvoteCount", 0)
+            .addUrl("http://d-nb.info/standards/elementset/gnd#GroupOfPersons", copyvoteGroup)
+            .build();
+        let historyVoteThing = buildThing({ name: "http://example.com" + "#historyVoteDetails" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/2002/07/owl#Thing")
+            .addInteger("http://schema.org/upvoteCount", 0)
+            .addInteger("http://schema.org/downvoteCount", 0)
+            .addUrl("http://d-nb.info/standards/elementset/gnd#GroupOfPersons", historyvoteGroup)
+            .build();
+        let thirdpartyVoteThing = buildThing({ name: "http://example.com" + "#sellDataVoteDetails" + count })
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/2002/07/owl#Thing")
+            .addInteger("http://schema.org/upvoteCount", 0)
+            .addInteger("http://schema.org/downvoteCount", 0)
+            .addUrl("http://d-nb.info/standards/elementset/gnd#GroupOfPersons", datasellvoteGroup)
+            .build();
 
         //dummy single constraint
         let purposeConstraint = buildThing({ name: "http://example.com" + "#purposeConstraint" + count })
             .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/ns/odrl/2/Constraint")
             .addUrl("http://www.w3.org/ns/odrl/2/leftOperand", "https://w3id.org/oac/Purpose")
+            .addUrl("http://www.w3.org/2002/07/owl#Thing", purposeVoteThing)
             .build();
 
         if (purposes.length == 1) {
@@ -139,12 +188,13 @@ module.exports = {
         }
 
         let d = new Date(req.selectedDate);
-        
+
         let timeConstraintThing = buildThing({ name: "http://example.com" + "#timeConstraintThing" + count })
             .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/ns/odrl/2/Constraint")
             .addUrl("http://www.w3.org/ns/odrl/2/leftOperand", "http://www.w3.org/ns/odrl/2/dateTime")
             .addUrl("http://www.w3.org/ns/odrl/2/operator", "http://www.w3.org/ns/odrl/2/lteq")
             .addDate("http://www.w3.org/ns/odrl/2/rightOperand", new Date(req.selectedDate))
+            .addUrl("http://www.w3.org/2002/07/owl#Thing", timevoteThing)
             .build();
 
         let constraintThing = buildThing({ name: "http://example.com" + "#constraint" + count })
@@ -157,7 +207,11 @@ module.exports = {
             .addUrl("http://www.w3.org/ns/odrl/2/assigner", req.requestedBy)
             .addUrl("http://www.w3.org/ns/odrl/2/target", "https://w3id.org/oac/Contact")
             .addUrl("http://www.w3.org/ns/odrl/2/action", "https://w3id.org/oac/Read")
+            .addUrl("http://www.w3.org/2002/07/owl#Thing", copyVoteThing)
+            .addUrl("http://www.w3.org/2002/07/owl#Thing", historyVoteThing)
+            .addUrl("http://www.w3.org/2002/07/owl#Thing", thirdpartyVoteThing)
             .addUrl("http://www.w3.org/ns/odrl/2/action", "https://w3id.org/oac/Write").build();
+
 
         if (req.isCopied) {
             permissionThing = buildThing(permissionThing)
@@ -177,19 +231,17 @@ module.exports = {
         permissionThing = buildThing(permissionThing)
             .addUrl("http://www.w3.org/ns/odrl/2/constraint", constraintThing)
             .build();
-        
+
         let commentThing = buildThing({ name: "http://example.com" + "#commentThing" + count })
-        .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type","http://schema.org/comment")
-        .build();
+            .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://schema.org/comment")
+            .build();
 
         let dataAccessRequestThing = buildThing({ name: "http://example.com" + "#policy" + count })
             .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/ns/odrl/2/Policy")
             .addUrl("http://www.w3.org/ns/odrl/2/profile", "https://w3id.org/oac/")
             .addUrl("http://www.w3.org/ns/odrl/2/Permission", permissionThing)
             .addStringNoLocale("http://purl.org/dc/terms/created", currentDate)
-            .addInteger("http://schema.org/upvoteCount",0)
-            .addInteger("http://schema.org/downvoteCount",0)
-            .addUrl("http://schema.org/comment",commentThing)
+            .addUrl("http://schema.org/comment", commentThing)
             .build();
 
         let currentCompRequestThing = getThing(courseSolidDataset, dataseturl + "#" + "http://example.com/companyrequests");
@@ -211,7 +263,22 @@ module.exports = {
         courseSolidDataset = setThing(courseSolidDataset, constraintThing);
         courseSolidDataset = setThing(courseSolidDataset, purposeConstraint);
         courseSolidDataset = setThing(courseSolidDataset, timeConstraintThing);
-        courseSolidDataset = setThing(courseSolidDataset,commentThing);
+        courseSolidDataset = setThing(courseSolidDataset, commentThing);
+
+        // vote things
+        courseSolidDataset = setThing(courseSolidDataset, timevoteThing);
+        courseSolidDataset = setThing(courseSolidDataset, purposeVoteThing);
+        courseSolidDataset = setThing(courseSolidDataset, historyVoteThing);
+        courseSolidDataset = setThing(courseSolidDataset, thirdpartyVoteThing);
+        courseSolidDataset = setThing(courseSolidDataset, historyVoteThing);
+
+        // vote groups
+        courseSolidDataset = setThing(courseSolidDataset, timevoteGroup);
+        courseSolidDataset = setThing(courseSolidDataset, historyvoteGroup);
+        courseSolidDataset = setThing(courseSolidDataset, datasellvoteGroup);
+        courseSolidDataset = setThing(courseSolidDataset, thirdpartyVoteThing);
+        courseSolidDataset = setThing(courseSolidDataset, purposevoteGroup);
+
         this.saveGivenSolidDataset(CONSTANTS.COMPANY_REQUESTS,
             courseSolidDataset, session)
     },
@@ -229,7 +296,7 @@ module.exports = {
         );
     },
 
-    getAllCompanyRequests:async function (sessionId){
+    getAllCompanyRequests: async function (sessionId) {
         session = await getSessionFromStorage(sessionId);
         return await this.getGivenSolidDataset(CONSTANTS.COMPANY_REQUESTS, session);
     }

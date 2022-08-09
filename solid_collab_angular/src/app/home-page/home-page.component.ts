@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Session } from '@inrupt/solid-client-authn-browser';
 import { AuthserviceService } from '../authservice.service';
 import { VCARD } from "@inrupt/vocab-common-rdf";
+import { collection,doc,getDoc,setDoc,Firestore } from '@angular/fire/firestore';
 import {
   getSolidDataset,
   getThing,
@@ -39,7 +40,7 @@ import { AjaxResult, Months,ShortAnswers,checkBoxTask} from '../model/constants'
 })
 export class HomePageComponent implements OnInit {
 
-  constructor(private router: Router, private service: AuthserviceService, private _formBuilder: FormBuilder) { }
+  constructor(private router: Router, private service: AuthserviceService, private _formBuilder: FormBuilder,private store: Firestore) { }
   copysession = this.service.session;
   profName: string = "from home page";
   dateSelected: number = Date.now();
@@ -110,12 +111,21 @@ export class HomePageComponent implements OnInit {
       console.log(result);
       console.log("inside result");
       if (result['message'] == "request_submitted") {
-        this.router.navigate(["/companyDashboard"], { state: { example: result['message'] } });
+        this.router.navigate(["/companyDashboard"], { queryParams: {message:result['message'] }});
       }
     });
   }
 
   async ngOnInit(): Promise<void> {
+    const docRef = doc(this.store, "solidcollab", "policies");
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log("Document data:", docSnap.data());
+    } else {
+      // doc.data() will be undefined in this case
+      console.log("No such document!");
+    }
     await this.copysession.handleIncomingRedirect({ url: window.location.href, restorePreviousSession: true });
     let webId = this.copysession.info.webId || "";
     let profileDocumentUrl = new URL(webId);

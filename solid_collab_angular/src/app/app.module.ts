@@ -30,7 +30,11 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-
+import {ScrollingModule} from '@angular/cdk/scrolling';
+import { VoteButtonComponent } from './vote-button/vote-button.component';
+import { initializeApp,provideFirebaseApp } from '@angular/fire/app';
+import { environment } from '../environments/environment';
+import { provideFirestore,getFirestore } from '@angular/fire/firestore';
 @NgModule({
   declarations: [
     AppComponent,
@@ -40,7 +44,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     UserDashboardComponent,
     RequestResubmitPageComponent,
     ProfileComponentComponent,
-    AdminDashboardComponent
+    AdminDashboardComponent,
+    VoteButtonComponent
   ],
   imports: [
     BrowserModule,
@@ -65,7 +70,10 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     MatListModule,
     MatTabsModule,
     MatExpansionModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    ScrollingModule,
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
+    provideFirestore(() => getFirestore())
     
   ],
   providers: [AuthserviceService],

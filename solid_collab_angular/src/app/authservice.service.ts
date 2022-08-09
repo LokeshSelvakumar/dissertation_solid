@@ -3,7 +3,7 @@ import { Session } from '@inrupt/solid-client-authn-browser';
 import { User } from './model/user-info';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { DataAccessRequest } from './model/data-access-request';
-import { SolidDataset, getThing } from '@inrupt/solid-client';
+import { SolidDataset, getThing, ThingPersisted } from '@inrupt/solid-client';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -16,6 +16,8 @@ export class AuthserviceService implements OnInit {
   session: Session = new Session();
   //global variable for policies or all submitted requests
   allcompanyRequestsDataset: any;
+  userLoggedIn: any;
+  selectedPolicy:any;
 
   async sendLoginRequest() {
     return await this.httpcl.get(this.REST_API_SERVICE + "/login", { responseType: 'json' });
@@ -37,22 +39,17 @@ export class AuthserviceService implements OnInit {
     return await this.httpcl.post<SolidDataset>(this.REST_API_SERVICE + "/allCompanyRequests", null, { responseType: "json" });
   }
 
+  // async updateVotes(){
+  //    await this.httpcl.post(this.REST_API_SERVICE+"/updateVotes",voteArray,{ responseType: "json" });
+  //    this.allcompanyRequestsDataset = this.getAllCompanyRequests();
+  // }
+
   updateFields(selectedpolicy: string): any {
-    let fieldsToReturn = { 'upvote': 0, 'downvote': 0, 'yesOrNo': false, 'history': false, "dataselling": false, 'research': false, 'analysis': false, 'date': new Date() };
+    let fieldsToReturn = { 'purposeVoteAttr': [0, 0, false, ""], 'timeVoteParams': [0, 0, false, ""], 'upvote': 0, 'downvote': 0, 'yesOrNo': false, 'history': false, "dataselling": false, 'research': false, 'analysis': false, 'date': new Date() };
     let displayPolicy = getThing(this.allcompanyRequestsDataset,
       "https://solid-pcrv.inrupt.net/private/Requests/companyRequests.ttl#http://example.com#" + selectedpolicy)
     console.log("displaypolicyyyyyyy")
     console.log(displayPolicy);
-    let upvote =
-      displayPolicy?.predicates['http://schema.org/upvoteCount']['literals']?.['http://www.w3.org/2001/XMLSchema#integer']?.[0];
-    let downvote =
-      displayPolicy?.predicates['http://schema.org/downvoteCount']['literals']?.['http://www.w3.org/2001/XMLSchema#integer']?.[0];
-    if (upvote) {
-      fieldsToReturn['upvote'] = +upvote;
-    }
-    if (downvote) {
-      fieldsToReturn['downvote'] = +downvote;
-    }
     let permission_url = displayPolicy?.predicates['http://www.w3.org/ns/odrl/2/Permission']['namedNodes']?.[0];
     permission_url = permission_url ? permission_url : "";
     let permissionThing = getThing(this.allcompanyRequestsDataset, permission_url);
@@ -74,7 +71,7 @@ export class AuthserviceService implements OnInit {
     constraint_url = constraint_url ? constraint_url : "";
     let constraintThing = getThing(this.allcompanyRequestsDataset, constraint_url);
     let constraintArray = constraintThing?.predicates['http://www.w3.org/ns/odrl/2/and']['namedNodes'];
-    let purposeThing, timeConstraintThing;
+    let purposeThing, timeConstraintThing, purposeVoteThing;
     constraintArray?.forEach((value: any) => {
       constraintThing = getThing(this.allcompanyRequestsDataset, value);
       if (constraintThing?.predicates['http://www.w3.org/ns/odrl/2/leftOperand']['namedNodes']?.[0] == "https://w3id.org/oac/Purpose") {
@@ -89,16 +86,45 @@ export class AuthserviceService implements OnInit {
             }
           });
         }
+        //purpose vote thing;
+        fieldsToReturn['purposeVoteAttr'] = this.unveilVoteParams(constraintThing);
       }
       else if (constraintThing?.predicates['http://www.w3.org/ns/odrl/2/leftOperand']['namedNodes']?.[0] == "http://www.w3.org/ns/odrl/2/dateTime") {
         timeConstraintThing = constraintThing?.predicates['http://www.w3.org/ns/odrl/2/rightOperand']?.['literals']?.['http://www.w3.org/2001/XMLSchema#date'][0];
         if (timeConstraintThing) {
           fieldsToReturn['date'] = new Date(timeConstraintThing);
         }
-
+        fieldsToReturn['timeVoteParams'] = this.unveilVoteParams(constraintThing);
       }
     });
     return fieldsToReturn;
+  }
+
+  unveilVoteParams(constraintThing: ThingPersisted) {
+    let purposeVoteThing;
+    let purposeVoteThing_url: any = constraintThing?.predicates['http://www.w3.org/2002/07/owl#Thing']['namedNodes']?.[0];
+    console.log(purposeVoteThing_url);
+    purposeVoteThing = getThing(this.allcompanyRequestsDataset, purposeVoteThing_url);
+    console.log("purposeVOTETHING");
+    console.log(purposeVoteThing);
+    let purposeUPVote = purposeVoteThing?.predicates['http://schema.org/upvoteCount']?.['literals']?.['http://www.w3.org/2001/XMLSchema#integer'][0];
+    purposeUPVote = purposeUPVote ? purposeUPVote : '0';
+    let purposedownVote = purposeVoteThing?.predicates['http://schema.org/downvoteCount']?.['literals']?.['http://www.w3.org/2001/XMLSchema#integer'][0];
+    purposedownVote = purposeUPVote ? purposeUPVote : '0';
+    let votedGroupThing_url = purposeVoteThing?.predicates['http://d-nb.info/standards/elementset/gnd#GroupOfPersons']['namedNodes']?.[0];
+    votedGroupThing_url = votedGroupThing_url ? votedGroupThing_url : "";
+    let votedGroupThing = getThing(this.allcompanyRequestsDataset, votedGroupThing_url);
+    console.log(votedGroupThing);
+    let voteDecision: any, isPresent;
+    if (votedGroupThing?.predicates[this.userLoggedIn]) {
+      isPresent = true;
+      voteDecision = votedGroupThing?.predicates[this.userLoggedIn]['literals']?.['http://www.w3.org/2001/XMLSchema#string']?.[0];
+      voteDecision = voteDecision ? voteDecision : "";
+    }
+    else {
+      isPresent = false;
+    }
+    return [parseInt(purposeUPVote), parseInt(purposedownVote), isPresent, voteDecision];
   }
 
   ngOnInit(): void {
