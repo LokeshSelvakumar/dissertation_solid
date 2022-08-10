@@ -28,10 +28,10 @@ export class CompanyDashboardComponent implements OnInit {
   }
   profName: string = "from company dashboard";
   copysession = this.service.session;
-  redirectNames = ['/homepage', '/userDashboard'];
+  redirectNames = ['/homepage', '/adminDashboard'];
   redirect(redirectName: string) {
     console.log(redirectName);
-    this.router.navigate([redirectName]);
+    this.router.navigate([redirectName],{ queryParams: { message: "fromcmpD"} });
   }
 
   async ngOnInit(): Promise<void> {

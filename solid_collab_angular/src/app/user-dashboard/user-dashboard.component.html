@@ -1,7 +1,7 @@
 <mat-grid-list cols="3" rowHeight="10em">
     <!-- 1st tile -->
     <mat-grid-tile rowspan="4" class="policySelect">
-        <mat-spinner *ngIf="loadingSpinner"></mat-spinner>
+        <!-- <mat-spinner *ngIf="loadingSpinner"></mat-spinner> -->
         <div *ngIf="!loadingSpinner && policiesLength == 0">
             <p>No data</p>
         </div>
@@ -29,8 +29,9 @@
             <p>No data</p>
         </div>
         <div class="spinner-user-dbd">
-            <mat-spinner *ngIf="loadingSpinner"></mat-spinner>
+            <mat-spinner *ngIf="loadingSpinner" style="left:18em;top:18em"></mat-spinner>
         </div>
+
         <div style="width: 100%; align-items:flex-start !important;" *ngIf="!loadingSpinner  && policiesLength != 0">
             <div style="width: 100%; display: flex; align-items: flex-start">
                 <app-vote-button [voteComponentInit]="timeVoteComponentInputs"></app-vote-button>
@@ -44,10 +45,12 @@
                     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                     <mat-datepicker #picker></mat-datepicker>
                 </mat-form-field>
-                
+                <div>
+                    <p> Created By {{thirdparty}}</p>
+                </div>
             </div>
             <div style="width: 100%; display: flex; align-items: flex-start">
-                <app-vote-button></app-vote-button>
+                <app-vote-button [voteComponentInit]="copyVoteComp"></app-vote-button>
                 <h4 style="padding-top:5em" matTooltip="http://www.w3.org/ns/odrl/2/action">patient Data will be
                     copied
                     &nbsp;&nbsp;&nbsp;</h4>
@@ -62,7 +65,7 @@
 
             </div>
             <div style="width: 100%; display: flex; align-items: flex-start">
-                <app-vote-button></app-vote-button>
+                <app-vote-button [voteComponentInit]="historyVoteCom"></app-vote-button>
                 <h4 class="pad-top-heading" matTooltip="http://www.w3.org/ns/odrl/2/action">history of data collected
                     will be
                     maintained&nbsp;&nbsp;&nbsp;</h4>
@@ -77,7 +80,7 @@
 
             </div>
             <div style="width: 100%; display: flex; align-items: flex-start">
-                <app-vote-button></app-vote-button>
+                <app-vote-button [voteComponentInit]="sellVoteComp"></app-vote-button>
                 <h4 class="pad-top-heading" matTooltip="http://www.w3.org/ns/odrl/2/action">Patient data will be sold to
                     third
                     parties&nbsp;&nbsp;&nbsp;</h4>

@@ -1,25 +1,13 @@
 <mat-grid-list cols="3" rowHeight="10em">
     <!-- 1st tile -->
-    <mat-grid-tile></mat-grid-tile>
-    <!-- 2nd tile -->
-    <mat-grid-tile rowspan="1">
-        <h2>ADMIN Dashboard</h2>
-    </mat-grid-tile>
-    <!-- 3rd tile -->
-    <mat-grid-tile>
-        <app-profile-component [profName]="profName"></app-profile-component>
-    </mat-grid-tile>
-    <!-- 2nd row 1st tile -->
-    <!-- <mat-grid-tile>
-    </mat-grid-tile> -->
-    <!-- 2nd row 2nd tile -->
     <mat-grid-tile rowspan="4">
-        <mat-spinner *ngIf="loadingSpinner"></mat-spinner>
+        <!-- <mat-spinner *ngIf="loadingSpinner"></mat-spinner> -->
         <div *ngIf="!loadingSpinner && policiesLength == 0">
             <p>No data</p>
         </div>
         <div class="request-tile" *ngIf="!loadingSpinner && policiesLength != 0">
-            <h3 matTooltip = "http://www.w3.org/ns/odrl/2/Policy" >Select data access requests below to see the parameters on your right </h3>
+            <h3 matTooltip="http://www.w3.org/ns/odrl/2/Policy">Select data access requests below to see the parameters
+            </h3>
             <mat-selection-list #shoes [multiple]="false">
                 <mat-list-option (click)="triggerParamLoad(shoes.selectedOptions.selected[0]?.value)"
                     *ngFor="let shoe of typesOfShoes; let i = index" [value]="shoe" [selected]="shoe && i == 0">
@@ -31,87 +19,170 @@
             </p>
         </div>
     </mat-grid-tile>
-    <mat-grid-tile colspan="2">
+    <!-- 2nd tile -->
+    <mat-grid-tile rowspan="1">
+        <h2>{{screenName}}</h2>
+    </mat-grid-tile>
+    <!-- 3rd tile -->
+    <mat-grid-tile>
+        <app-profile-component [profName]="profName"></app-profile-component>
+    </mat-grid-tile>
+    <!-- 2nd row 1st tile -->
+    <!-- <mat-grid-tile>
+    </mat-grid-tile> -->
+    <!-- 2nd row 2nd tile -->
+    <!-- <mat-grid-tile></mat-grid-tile> -->
+    <mat-grid-tile colspan="2" *ngIf="!loadingSpinner && policiesLength == 0">
         <p>Edit the request parameters below to submit request back to the third party</p>
     </mat-grid-tile>
-    <mat-grid-tile colspan="2" rowspan="4" class="video-title">
+    <mat-grid-tile colspan="2" rowspan="6" class="video-title">
         <div *ngIf="!loadingSpinner && policiesLength == 0">
             <p>No data</p>
         </div>
-        <mat-spinner *ngIf="loadingSpinner"></mat-spinner>
-        <div style="width: 100%; display: inline-block; align-items: flex-start ; padding-left:2em;"
+        <mat-spinner style="left:17em;top:15em" *ngIf="loadingSpinner"></mat-spinner>
+        <div style=" display:inline; align-items: flex-start ; padding-left:2em; top:-10em"
             *ngIf="!loadingSpinner  && policiesLength !=0">
             <div style="padding-bottom:2em ; display: flex; align-items: flex-start">
-                <button mat-raised-button color="red" (click)="edit()">{{editable}}</button>
-                <div style ="padding-left:8em;padding-bottom:2em ; display: flex; align-items: flex-start">
-                    <p matTooltip = "upvotes" > <span class="material-icons" style = "color:green ">thumb_up</span> <span style = "color:green">{{"          "  +   upvotes}}</span></p>
-                    <p matTooltip = "downvotes" style = "padding-left:2em"> <span class="material-icons" style = "color:crimson" >thumb_down</span> <span style = "color:crimson">{{  "          " + downVotes}}</span></p>
+                <div style="padding-left:15em">
+                    <p> Status : <span [ngClass]="{
+                        'red-class': this.status=='Rejected',
+                        'green-class': this.status=='Accepted',
+                        'yellow-class':this.status=='resubmit',
+                        'review-class':this.status == 'Review'}">{{status}}</span></p>
+                </div>
+                <div style="padding-left:20em" *ngIf="this.showDiv">
+                    <button mat-raised-button color="red" [disabled]="buttondisable"
+                        (click)="edit()">{{editable}}</button>
                 </div>
             </div>
-            <h4 matTooltip="http://www.w3.org/ns/odrl/2/Constraint">patient Data access till &nbsp;&nbsp;&nbsp;</h4>
-            <mat-form-field appearance="fill" style="padding-bottom:2em">
-                <mat-label>Choose a date</mat-label>
-                <input matInput [matDatepicker]="picker" [disabled]="enabled_flag" [(ngModel)]="dateSelected">
-                <mat-hint>MM/DD/YYYY</mat-hint>
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
-            <h4 matTooltip="http://www.w3.org/ns/odrl/2/action">patient Data will be copied &nbsp;&nbsp;&nbsp;</h4>
-            <mat-form-field appearance="fill" style="padding-bottom:1em">
-                <mat-label>yes/no</mat-label>
-                <mat-select [(ngModel)]="yesOrNo" name="shortAnswer" [disabled]="enabled_flag">
-                    <mat-option *ngFor="let shortAnswer of shortAnswers" [value]="shortAnswer.value">
-                        {{shortAnswer.viewValue}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <h4 matTooltip="http://www.w3.org/ns/odrl/2/action">history of data collected will be
-                maintained&nbsp;&nbsp;&nbsp;</h4>
-            <mat-form-field appearance="fill">
-                <mat-label>yes/no</mat-label>
-                <mat-select [(ngModel)]="historyOfData" name="shortAnswer" [disabled]="enabled_flag">
-                    <mat-option *ngFor="let shortAnswer of shortAnswers" [value]="shortAnswer.value">
-                        {{shortAnswer.viewValue}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-        </div>
-        <div style="width: 100%; display: inline-block; align-items: center ; padding-top:4em" *ngIf="!loadingSpinner">
-            <h4 matTooltip="http://www.w3.org/ns/odrl/2/action">Patient data will be sold to third
-                parties&nbsp;&nbsp;&nbsp;</h4>
-            <mat-form-field appearance="fill" style="padding-bottom:2em">
-                <mat-label>yes/no</mat-label>
-                <mat-select [disabled]="enabled_flag" [(ngModel)]="dataSelling" name="shortAnswer">
-                    <mat-option *ngFor="let shortAnswer of shortAnswers" [value]="shortAnswer.value">
-                        {{shortAnswer.viewValue}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <section class="purpose-section" style="padding-bottom:4em">
-                <h4 matTooltip="http://www.w3.org/ns/odrl/2/Constraint">Patient data will be used for following purposes:
-                </h4>
-                <span class="purpose-list-section">
-                    <mat-checkbox class="purpose-margin" [checked]="allComplete" [indeterminate]="someComplete()"
-                        (change)="setAll($event.checked)" [disabled]="enabled_flag">
-                        {{task.name}}
-                    </mat-checkbox>
-                </span>
-                <span class="purpose-list-section">
-                    <ul>
-                        <li *ngFor="let subtask of task.subtasks">
-                            <mat-checkbox [(ngModel)]="subtask.completed" (ngModelChange)="updateAllComplete()"
-                                [disabled]="enabled_flag">
-                                {{subtask.name}}
-                            </mat-checkbox>
-                        </li>
-                    </ul>
-                </span>
-            </section>
-
-            <div style="display:flex; align-items: flex-start ; padding-left:2em;">
-                <button mat-raised-button color="blue" (click)="resubmit()">Resubmit</button>
+            <div style="padding-bottom:2em ; display: flex; align-items: flex-start">
+                <h4 matTooltip="http://www.w3.org/ns/odrl/2/Constraint">patient Data access till &nbsp;&nbsp;&nbsp;</h4>
+                <mat-form-field appearance="fill" style="padding-bottom:2em">
+                    <mat-label>Choose a date</mat-label>
+                    <input matInput [matDatepicker]="picker" [disabled]="enabled_flag" [(ngModel)]="dateSelected">
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+                <div style="padding-left:1em" *ngIf="this.showDiv">
+                    <p matTooltip="upvotes"> <span class="material-icons" style="color:green ">thumb_up</span> <span
+                            style="color:green">{{" " + timeVoteComponentInputs[0]}}</span></p>
+                    <p matTooltip="downvotes"> <span class="material-icons" style="color:crimson">thumb_down</span>
+                        <span style="color:crimson">{{ " " +
+                            timeVoteComponentInputs[1]}}</span>
+                    </p>
+                </div>
+            </div>
+            <div style="padding-bottom:2em ; display: flex; align-items: flex-start">
+                <h4 matTooltip="http://www.w3.org/ns/odrl/2/action">patient Data will be copied &nbsp;&nbsp;&nbsp;</h4>
+                <mat-form-field appearance="fill" style="padding-bottom:1em">
+                    <mat-label>yes/no</mat-label>
+                    <mat-select [(ngModel)]="yesOrNo" name="shortAnswer" [disabled]="enabled_flag">
+                        <mat-option *ngFor="let shortAnswer of shortAnswers" [value]="shortAnswer.value">
+                            {{shortAnswer.viewValue}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <div style="padding-left:1em" *ngIf="this.showDiv">
+                    <p matTooltip="upvotes"> <span class="material-icons" style="color:green ">thumb_up</span> <span
+                            style="color:green">{{" " + copyVoteComp[0]}}</span></p>
+                    <p matTooltip="downvotes"> <span class="material-icons" style="color:crimson">thumb_down</span>
+                        <span style="color:crimson">{{ " " +
+                            copyVoteComp[1]}}</span>
+                    </p>
+                </div>
+            </div>
+            <div style="padding-bottom:2em ; display: flex; align-items: flex-start">
+                <h4 matTooltip="http://www.w3.org/ns/odrl/2/action">history of data collected will be
+                    maintained&nbsp;&nbsp;&nbsp;</h4>
+                <mat-form-field appearance="fill">
+                    <mat-label>yes/no</mat-label>
+                    <mat-select [(ngModel)]="historyOfData" name="shortAnswer" [disabled]="enabled_flag">
+                        <mat-option *ngFor="let shortAnswer of shortAnswers" [value]="shortAnswer.value">
+                            {{shortAnswer.viewValue}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <div style="padding-left:1em" *ngIf="this.showDiv">
+                    <p matTooltip="upvotes"> <span class="material-icons" style="color:green ">thumb_up</span> <span
+                            style="color:green">{{" " + historyVoteCom[0]}}</span></p>
+                    <p matTooltip="downvotes"> <span class="material-icons" style="color:crimson">thumb_down</span>
+                        <span style="color:crimson">{{ " " +
+                            historyVoteCom[1]}}</span>
+                    </p>
+                </div>
+            </div>
+            <!-- </div> -->
+            <!-- <div style="width: 100%; display: inline-block; align-items: center ; padding-top:4em;" *ngIf="!loadingSpinner"> -->
+            <div style="padding-bottom:2em ; display: flex; align-items: flex-start">
+                <h4 matTooltip="http://www.w3.org/ns/odrl/2/action">Patient data will be sold to third
+                    parties&nbsp;&nbsp;&nbsp;</h4>
+                <mat-form-field appearance="fill" style="padding-bottom:2em">
+                    <mat-label>yes/no</mat-label>
+                    <mat-select [disabled]="enabled_flag" [(ngModel)]="dataSelling" name="shortAnswer">
+                        <mat-option *ngFor="let shortAnswer of shortAnswers" [value]="shortAnswer.value">
+                            {{shortAnswer.viewValue}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <div style="padding-left:1em" *ngIf="this.showDiv">
+                    <p matTooltip="upvotes"> <span class="material-icons" style="color:green ">thumb_up</span> <span
+                            style="color:green">{{" " + sellVoteComp[0]}}</span></p>
+                    <p matTooltip="downvotes"> <span class="material-icons" style="color:crimson">thumb_down</span>
+                        <span style="color:crimson">{{ " " +
+                            sellVoteComp[1]}}</span>
+                    </p>
+                </div>
+            </div>
+            <div style="padding-bottom:2em ; display: flex; align-items: flex-start">
+                <section class="purpose-section" style="padding-bottom:4em">
+                    <h4 matTooltip="http://www.w3.org/ns/odrl/2/Constraint">Patient data will be used for following
+                        purposes:
+                    </h4>
+                    <span class="purpose-list-section">
+                        <mat-checkbox class="purpose-margin" [checked]="allComplete" [indeterminate]="someComplete()"
+                            (change)="setAll($event.checked)" [disabled]="enabled_flag">
+                            {{task.name}}
+                        </mat-checkbox>
+                    </span>
+                    <span class="purpose-list-section">
+                        <ul>
+                            <li *ngFor="let subtask of task.subtasks">
+                                <mat-checkbox [(ngModel)]="subtask.completed" (ngModelChange)="updateAllComplete()"
+                                    [disabled]="enabled_flag">
+                                    {{subtask.name}}
+                                </mat-checkbox>
+                            </li>
+                        </ul>
+                    </span>
+                </section>
+                <div style="padding-left:1em" *ngIf="this.showDiv">
+                    <p matTooltip="upvotes"> <span class="material-icons" style="color:green ">thumb_up</span> <span
+                            style="color:green">{{" " + purposeVoteComponentInputs[0]}}</span></p>
+                    <p matTooltip="downvotes"> <span class="material-icons" style="color:crimson">thumb_down</span>
+                        <span style="color:crimson">{{ " " +
+                            purposeVoteComponentInputs[1]}}</span>
+                    </p>
+                </div>
+            </div>
+            <div style="display:flex; align-items: flex-start ; padding-left:2em;" *ngIf="this.showDiv">
+                <button mat-raised-button color="blue" [disabled]="buttondisable" (click)="resubmit()">Resubmit</button>
                 <div style="padding-left:2em">
-                    <button mat-raised-button color="green" (click)="accept()">Accept</button>
+                    <button mat-raised-button color="green" [disabled]="buttondisable"
+                        (click)="accept()">Accept</button>
+                </div>
+                <div style="padding-left:2em">
+                    <button mat-raised-button color="red" [disabled]="buttondisable" (click)="reject()">Reject</button>
+                </div>
+            </div>
+            <div style="display:flex; align-items: flex-start ; padding-left:2em;" *ngIf="!this.showDiv">
+                <div style="padding-left:2em">
+                    <button mat-raised-button color="green" [disabled]="this.status == 'resubmit'?false:true"
+                        (click)="compdec('Resubmission Accepted')">Accept</button>
+                </div>
+                <div style="padding-left:2em">
+                    <button mat-raised-button color="red" [disabled]="this.status == 'resubmit'?false:true"
+                        (click)="compdec('Resubmission Rejected')">Reject</button>
                 </div>
             </div>
         </div>

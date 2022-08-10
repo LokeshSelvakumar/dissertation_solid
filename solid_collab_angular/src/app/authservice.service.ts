@@ -18,6 +18,7 @@ export class AuthserviceService implements OnInit {
   allcompanyRequestsDataset: any;
   userLoggedIn: any;
   selectedPolicy:any;
+  policycount:any;
 
   async sendLoginRequest() {
     return await this.httpcl.get(this.REST_API_SERVICE + "/login", { responseType: 'json' });
@@ -45,7 +46,7 @@ export class AuthserviceService implements OnInit {
   // }
 
   updateFields(selectedpolicy: string): any {
-    let fieldsToReturn = { 'purposeVoteAttr': [0, 0, false, ""], 'timeVoteParams': [0, 0, false, ""], 'upvote': 0, 'downvote': 0, 'yesOrNo': false, 'history': false, "dataselling": false, 'research': false, 'analysis': false, 'date': new Date() };
+    let fieldsToReturn = {'assigner':"empty" ,'policy':selectedpolicy,'purposeVoteAttr': [0, 0, false, ""], 'timeVoteParams': [0, 0, false, ""], 'upvote': 0, 'downvote': 0, 'yesOrNo': false, 'history': false, "dataselling": false, 'research': false, 'analysis': false, 'date': new Date() };
     let displayPolicy = getThing(this.allcompanyRequestsDataset,
       "https://solid-pcrv.inrupt.net/private/Requests/companyRequests.ttl#http://example.com#" + selectedpolicy)
     console.log("displaypolicyyyyyyy")
@@ -56,6 +57,8 @@ export class AuthserviceService implements OnInit {
     console.log("permissionThing");
     console.log(permissionThing);
     let actionitemsArray = permissionThing?.predicates['http://www.w3.org/ns/odrl/2/action']['namedNodes'];
+    let assigner =  permissionThing?.predicates['http://www.w3.org/ns/odrl/2/assigner']['namedNodes']?.[0]?  permissionThing?.predicates['http://www.w3.org/ns/odrl/2/assigner']['namedNodes']?.[0]: "";
+    fieldsToReturn['assigner'] =  assigner;
     //assinging the three actions
     if (actionitemsArray?.indexOf("https://w3id.org/oac/Copy") != -1) {
       fieldsToReturn['yesOrNo'] = true;

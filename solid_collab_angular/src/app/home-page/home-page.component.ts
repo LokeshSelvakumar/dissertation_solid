@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { Session } from '@inrupt/solid-client-authn-browser';
 import { AuthserviceService } from '../authservice.service';
 import { VCARD } from "@inrupt/vocab-common-rdf";
-import { collection,doc,getDoc,setDoc,Firestore } from '@angular/fire/firestore';
+import { collection, doc, getDoc, setDoc, Firestore, increment, updateDoc } from '@angular/fire/firestore';
 import {
   getSolidDataset,
   getThing,
@@ -15,7 +15,7 @@ import {
 
 import { FormBuilder } from '@angular/forms';
 import { DataAccessRequest } from '../model/data-access-request';
-import { AjaxResult, Months,ShortAnswers,checkBoxTask} from '../model/constants';
+import { AjaxResult, Months, ShortAnswers, checkBoxTask } from '../model/constants';
 
 // interface Months {
 //   value: number;
@@ -40,7 +40,7 @@ import { AjaxResult, Months,ShortAnswers,checkBoxTask} from '../model/constants'
 })
 export class HomePageComponent implements OnInit {
 
-  constructor(private router: Router, private service: AuthserviceService, private _formBuilder: FormBuilder,private store: Firestore) { }
+  constructor(private router: Router, private service: AuthserviceService, private _formBuilder: FormBuilder, private store: Firestore) { }
   copysession = this.service.session;
   profName: string = "from home page";
   dateSelected: number = Date.now();
@@ -107,11 +107,25 @@ export class HomePageComponent implements OnInit {
     console.log(this.dateSelected);
     let webId = this.copysession.info.webId || "";
     let DAR: DataAccessRequest = new DataAccessRequest(webId, this.dateSelected, this.yesOrNo, this.task, this.historyOfData, this.dataSelling);
-    (await this.service.DARRequest(DAR)).subscribe((result: AjaxResult) => {
+
+    // await updateDoc(doc())
+    (await this.service.DARRequest(DAR)).subscribe(async (result: AjaxResult) => {
       console.log(result);
       console.log("inside result");
       if (result['message'] == "request_submitted") {
-        this.router.navigate(["/companyDashboard"], { queryParams: {message:result['message'] }});
+        await setDoc(doc(this.store, "solidcollab", "policies"), {
+          count: increment(1)
+        }, { merge: true });
+        this.service.policycount++;
+        await setDoc(doc(this.store, "solidcollab", "policies"), {
+          request: {
+            ["request_" + this.service.policycount]: {
+              1: { upvote: 0, downvote: 0, members: [] }, 2: { upvote: 0, downvote: 0, members: [] }, 3: { upvote: 0, downvote: 0, members: [] },
+              4: { upvote: 0, downvote: 0, members: [] }, 5: { upvote: 0, downvote: 0, members: [] }, comments: {}, status:"Review",
+            }
+          }
+        }, { merge: true });
+        this.router.navigate(["/companyDashboard"], { queryParams: { message: result['message'] } });
       }
     });
   }
@@ -122,6 +136,7 @@ export class HomePageComponent implements OnInit {
 
     if (docSnap.exists()) {
       console.log("Document data:", docSnap.data());
+      this.service.policycount = docSnap.data()['count'];
     } else {
       // doc.data() will be undefined in this case
       console.log("No such document!");

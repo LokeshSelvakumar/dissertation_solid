@@ -6,6 +6,7 @@ import { getSolidDataset, getThing, SolidDataset } from '@inrupt/solid-client';
 import { companyRequests } from '../model/constants';
 import { Observable } from 'rxjs';
 import { collection, doc, setDoc, Firestore, getDoc } from '@angular/fire/firestore';
+import { ActivatedRoute, Params } from '@angular/router';
 
 
 @Component({
@@ -14,7 +15,8 @@ import { collection, doc, setDoc, Firestore, getDoc } from '@angular/fire/firest
   styleUrls: ['./admin-dashboard.component.css']
 })
 export class AdminDashboardComponent implements OnInit {
-  // dbFire = collection(this.store, "solidcollab");
+  dbFire: any;
+  screenName = "ADMIN DASHBOARD";
   copysession = this.service.session;
   profName: string = "from admin screen";
   dateSelected: any = Date.now();
@@ -24,6 +26,7 @@ export class AdminDashboardComponent implements OnInit {
   policiesLength: number = 0;
   upvotes: number = 0;
   downVotes: number = 0;
+  status: any = "Review";
   months: Months[] = [
     { value: 1, viewValue: 'one' },
     { value: 2, viewValue: 'two' },
@@ -54,15 +57,22 @@ export class AdminDashboardComponent implements OnInit {
     ]
   };
 
+  timeVoteComponentInputs: any[] = [20, 15];
+  purposeVoteComponentInputs: any[] = [20, 15];
+  copyVoteComp: any[] = [20, 15];
+  historyVoteCom: any[] = [20, 15];
+  sellVoteComp: any[] = [20, 15];
+  selectedPolicy: any;
+  buttondisable = false;
+  fromPage = "";
+  showDiv = true;
   // on selecting the policy all the fields on right should be updated here
   triggerParamLoad(selectedVal: any) {
     console.log("inside trigger param load");
     console.log(selectedVal);
+    this.selectedPolicy = selectedVal;
     let fieldsToUpdate = this.service.updateFields(selectedVal);
     this.updateFieldsInPage(fieldsToUpdate);
-  }
-  accept() {
-
   }
   updateAllComplete() {
     this.allComplete = this.task.subtasks != null && this.task.subtasks.every(t => t.completed);
@@ -78,10 +88,48 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
+  async updatefireDB() {
+    const docRef = doc(this.store, "solidcollab", "policies");
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log("Document data:", docSnap.data());
+      this.dbFire = docSnap.data();
+    } else {
+      // doc.data() will be undefined in this case
+      console.log("No such document!");
+    }
+  }
+  async accept() {
+    await setDoc(doc(this.store, "solidcollab", "policies"), {
+      request: { [this.selectedPolicy]: { status: "Accepted" } }
+    }, { merge: true });
+    await this.updatefireDB();
+    this.buttondisable = true;
+    this.enabled_flag = true;
+    this.editable = "Edit fields";
+    this.status = "Accepted";
+  }
+  async reject() {
+    await setDoc(doc(this.store, "solidcollab", "policies"), {
+      request: { [this.selectedPolicy]: { status: "Rejected" } }
+    }, { merge: true });
+    await this.updatefireDB();
+    this.buttondisable = true;
+    this.enabled_flag = true;
+    this.editable = "Edit fields";
+    this.status = "Rejected";
+  }
   async resubmit() {
-    (await this.service.getAllCompanyRequests()).subscribe((result) => {
-      console.log(result);
-    });
+    await setDoc(doc(this.store, "solidcollab", "policies"), {
+      request: { [this.selectedPolicy]: { status: "Resubmit" } }
+    }, { merge: true });
+    await this.updatefireDB();
+    this.buttondisable = true;
+    this.enabled_flag = true;
+    this.editable = "Edit fields";
+    this.status = "Resubmit";
+
   }
   someComplete(): boolean {
     if (this.task.subtasks == null) {
@@ -100,16 +148,35 @@ export class AdminDashboardComponent implements OnInit {
     console.log(this.task.subtasks);
   }
   typesOfShoes: string[] = ['request 1', 'request 2'];
-  constructor(private _formBuilder: FormBuilder, private service: AuthserviceService, private store: Firestore) {
-    
+  constructor(private _formBuilder: FormBuilder, private service: AuthserviceService,
+    private store: Firestore, private paramroute: ActivatedRoute) {
+    paramroute.queryParams.subscribe((params: Params) => {
+      console.log("inside constructor of router params");
+      console.log(params['message']);
+      this.fromPage = params['message'];
+    });
+    if(this.fromPage == "fromcmpD"){
+      this.screenName = "Request Review Page";
+      this.showDiv = false;
+    }else{
+      this.showDiv = true;
+    }
   }
 
+  async compdec(statusTOUpdate:string){
+    await setDoc(doc(this.store, "solidcollab", "policies"), {
+      request: { [this.selectedPolicy]: { status: statusTOUpdate } }
+    }, { merge: true });
+    await this.updatefireDB();
+    this.status = statusTOUpdate;
+  }
   async ngOnInit(): Promise<void> {
     const docRef = doc(this.store, "solidcollab", "policies");
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
       console.log("Document data:", docSnap.data());
+      this.dbFire = docSnap.data();
     } else {
       // doc.data() will be undefined in this case
       console.log("No such document!");
@@ -153,7 +220,46 @@ export class AdminDashboardComponent implements OnInit {
       this.loadingSpinner = tempspinnerValue;
       this.typesOfShoes = localarrayrequests;
     });
+
   }
+
+
+  extractVoteInputs(fieldsReceived: any, componentMapping: string) {
+    let disableUp, disableDown;
+    let ruleNumber;
+    switch (componentMapping) {
+      case "timeVoteParams":
+        ruleNumber = 1;
+        break;
+      case "copyvote":
+        ruleNumber = 2;
+        break;
+      case "historyvote":
+        ruleNumber = 3;
+        break;
+      case "sellvote":
+        ruleNumber = 4;
+        break;
+      case "purposeVoteAttr":
+        ruleNumber = 5;
+        break;
+      default:
+        ruleNumber = 1;
+    }
+
+    let rule = this.dbFire['request'][fieldsReceived][ruleNumber];
+    let upvote = rule['upvote'];
+    let downvote = rule['downvote'];
+    this.status = this.dbFire['request'][fieldsReceived]['status'];
+    if (this.status != "Review") {
+      this.buttondisable = true;
+    }
+    else {
+      this.buttondisable = false;
+    }
+    return [upvote, downvote];
+  }
+
   updateFieldsInPage(fieldsToUpdate: any) {
     this.dateSelected = fieldsToUpdate['date'];
     this.yesOrNo = fieldsToUpdate['yesOrNo'];
@@ -167,6 +273,11 @@ export class AdminDashboardComponent implements OnInit {
     }
     this.upvotes = fieldsToUpdate['upvote'];
     this.downVotes = fieldsToUpdate['downvote'];
+    this.timeVoteComponentInputs = this.extractVoteInputs(fieldsToUpdate['policy'], "timeVoteParams");
+    this.copyVoteComp = this.extractVoteInputs(fieldsToUpdate['policy'], "copyvote");
+    this.historyVoteCom = this.extractVoteInputs(fieldsToUpdate['policy'], "historyvote");
+    this.sellVoteComp = this.extractVoteInputs(fieldsToUpdate['policy'], "sellvote");
+    this.purposeVoteComponentInputs = this.extractVoteInputs(fieldsToUpdate['policy'], "purposeVoteAttr");
   }
 
 }

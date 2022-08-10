@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { Session } from '@inrupt/solid-client-authn-browser';
 import { AuthserviceService } from '../authservice.service';
 import { checkBoxTask, ShortAnswers } from '../model/constants';
-import { collection,doc,setDoc,Firestore } from '@angular/fire/firestore';
+import { collection, doc, setDoc, Firestore, getDoc } from '@angular/fire/firestore';
 import {
   getSolidDataset,
   getThing
@@ -18,16 +18,15 @@ import { DomSanitizer } from '@angular/platform-browser';
 })
 export class UserDashboardComponent implements OnInit {
 
-  constructor(private router: Router, private service: AuthserviceService,private store: Firestore) { 
-    
-  }
-   dbFire = collection(this.store,"solidcollab");
+  constructor(private router: Router, private service: AuthserviceService, private store: Firestore) { }
+
+  dbFire: any;
   copysession = this.service.session;
   dateSelected = new Date();
   policiesLength: number = 0;
   loadingSpinner: boolean = true;
   profName: string = "from user dashboard";
-
+  thirdparty:string = "aseGroup";
   dataSelling = false;
   historyOfData = false;
   yesOrNo = false;
@@ -40,7 +39,7 @@ export class UserDashboardComponent implements OnInit {
       { name: 'Analysis', completed: false },
     ]
   };
-  
+
   shortAnswers: ShortAnswers[] = [
     { value: true, viewValue: "yes" },
     { value: false, viewValue: "no" }
@@ -48,9 +47,12 @@ export class UserDashboardComponent implements OnInit {
   typesOfShoes: string[] = [];
 
   //vote component variables
-  timeVoteComponentInputs: any[] = [20, 15, false, false,"timeVoteParams"];
-  purposeVoteComponentInputs:any[]=[212,223,true,true,"purposeVoteAttr"];
-  
+  timeVoteComponentInputs: any[] = [20, 15, false, false, "timeVoteParams", ""];
+  purposeVoteComponentInputs: any[] = [212, 223, true, true, "purposeVoteAttr", ""];
+  copyVoteComp: any[] = [20, 15, false, false, "copyVoteComp", ""];
+  historyVoteCom: any[] = [20, 15, false, false, "historyVoteCom", ""];
+  sellVoteComp: any[] = [20, 15, false, false, "sellVoteComp", ""];
+
 
   logout() {
     this.service.session = new Session();
@@ -58,9 +60,16 @@ export class UserDashboardComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
-  triggerParamLoad(selectedVal: any) {
+  async triggerParamLoad(selectedVal: any) {
     console.log("inside trigger param load");
     console.log(selectedVal);
+    const docRef = doc(this.store, "solidcollab", "policies");
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      this.dbFire = await docSnap.data();
+    } else {
+      console.log("No such document!");
+    }
     this.service.selectedPolicy = selectedVal;
     let fieldsToUpdate = this.service.updateFields(selectedVal);
     this.updateFieldsInPage(fieldsToUpdate);
@@ -83,6 +92,15 @@ export class UserDashboardComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    const docRef = doc(this.store, "solidcollab", "policies");
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      console.log("Document data:", docSnap.data());
+      this.dbFire = docSnap.data();
+    } else {
+      console.log("No such document!");
+    }
+
     await this.copysession.handleIncomingRedirect({ url: window.location.href, restorePreviousSession: true });
     let webId = this.copysession.info.webId || "";
     let profileDocumentUrl = new URL(webId);
@@ -138,19 +156,57 @@ export class UserDashboardComponent implements OnInit {
     if (this.task.subtasks?.[1]) {
       this.task.subtasks[1]['completed'] = fieldsToUpdate['analysis'];
     }
-    this.timeVoteComponentInputs = this.extractVoteInputs(fieldsToUpdate['timeVoteParams'],"timeVoteParams");
-    this.purposeVoteComponentInputs = this.extractVoteInputs(fieldsToUpdate['purposeVoteAttr'],"purposeVoteAttr");
+    this.timeVoteComponentInputs = this.extractVoteInputs(fieldsToUpdate['policy'], "timeVoteParams");
+    this.copyVoteComp = this.extractVoteInputs(fieldsToUpdate['policy'], "copyvote");
+    this.historyVoteCom = this.extractVoteInputs(fieldsToUpdate['policy'], "historyvote");
+    this.sellVoteComp = this.extractVoteInputs(fieldsToUpdate['policy'], "sellvote");
+    this.purposeVoteComponentInputs = this.extractVoteInputs(fieldsToUpdate['policy'], "purposeVoteAttr");
+    this.thirdparty = fieldsToUpdate['assigner'];
 
   }
 
-  extractVoteInputs(fieldsReceived: any,componentMapping:string) {
+  extractVoteInputs(fieldsReceived: any, componentMapping: string) {
     let disableUp, disableDown;
-    if (fieldsReceived[2] == false) {
+    let ruleNumber;
+    switch (componentMapping) {
+      case "timeVoteParams":
+        ruleNumber = 1;
+        break;
+      case "copyvote":
+        ruleNumber = 2;
+        break;
+      case "historyvote":
+        ruleNumber = 3;
+        break;
+      case "sellvote":
+        ruleNumber = 4;
+        break;
+      case "purposeVoteAttr":
+        ruleNumber = 5;
+        break;
+      default:
+        ruleNumber = 1;
+    }
+
+    let rule = this.dbFire['request'][fieldsReceived][ruleNumber];
+    let upvote = rule['upvote'];
+    let downvote = rule['downvote'];
+    let members = rule['members']
+    let isPresent = false;
+    let votedOption = "";
+    members.forEach((value: any) => {
+      if (value[this.profName]) {
+        isPresent = true;
+        votedOption = value[this.profName];
+      }
+    });
+
+    if (isPresent == false) {
       disableUp = false;
       disableDown = false;
     }
     else {
-      if (fieldsReceived[3] == "upvote") {
+      if (votedOption == "upvote") {
         disableUp = true;
         disableDown = false;
       }
@@ -159,7 +215,7 @@ export class UserDashboardComponent implements OnInit {
         disableDown = true;
       }
     }
-    return [fieldsReceived[0], fieldsReceived[1], disableUp, disableDown,componentMapping]
+    return [upvote, downvote, disableUp, disableDown, componentMapping, fieldsReceived]
   }
 }
 

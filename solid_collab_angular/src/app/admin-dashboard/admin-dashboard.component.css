@@ -1,7 +1,18 @@
-mat-grid-tile {
+/* mat-grid-tile {
     background: lightblue;
+} */
+.red-class{
+    color:red;
 }
-
+.green-class{
+    color:green;
+}
+.yellow-class{
+    color:blue;
+}
+.review-class{
+    color:orange
+}
 .mat-blue {
     background-color: #0e71ad;
     color: white;
